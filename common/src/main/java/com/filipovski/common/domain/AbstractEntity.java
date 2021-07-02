@@ -30,7 +30,7 @@ public abstract class AbstractEntity<ID extends DomainObjectId> implements Ident
 
     @Override
     public ID id() {
-        return null;
+        return id;
     }
 
     protected <T> T registerEvent(T event) {
