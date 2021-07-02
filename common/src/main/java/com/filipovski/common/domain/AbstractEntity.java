@@ -5,7 +5,7 @@ import org.springframework.data.domain.DomainEvents;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.Assert;
 
-import javax.persistence.Embedded;
+import javax.persistence.EmbeddedId;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 @MappedSuperclass
 public abstract class AbstractEntity<ID extends DomainObjectId> implements IdentifiableDomainObject<ID> {
 
-    @Embedded
+    @EmbeddedId
     ID id;
 
     @Transient

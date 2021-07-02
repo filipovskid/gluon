@@ -1,0 +1,11 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://192.168.1.101:5432/core
+    username: gluon
+    password: gluon
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop

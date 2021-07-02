@@ -3,11 +3,12 @@ package com.filipovski.common.domain;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.MappedSuperclass;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 @MappedSuperclass
-public class DomainObjectId {
+public class DomainObjectId implements Serializable {
 
     private final String id;
 
