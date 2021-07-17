@@ -1,12 +1,15 @@
 package com.filipovski.gluoncore.notebook;
 
 import com.filipovski.common.domain.AbstractEntity;
+import com.filipovski.gluoncore.notebook.events.CellExecutionStartedEvent;
 import lombok.Getter;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 import java.util.Objects;
+
+// TODO Track cell execution lifecycle
 
 @Getter
 @Entity(name = "notebook_cells")
@@ -37,6 +40,12 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.language = language;
         this.code = code;
         this.position = position;
+    }
+
+    public void run() {
+        // TODO Track notebook cell's execution state. Ensure proper state transition.
+
+        registerEvent(CellExecutionStartedEvent.from(this));
     }
 
     public String getId() {

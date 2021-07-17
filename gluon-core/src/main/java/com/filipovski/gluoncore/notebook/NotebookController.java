@@ -39,7 +39,13 @@ public class NotebookController {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{notebook-id}/cell/{cell-id}")
     public void removeNotebookCell(@PathVariable("notebook-id") UUID notebookId,
-                                             @PathVariable("cell-id") UUID notebookCellId) throws Exception {
+                                   @PathVariable("cell-id") UUID notebookCellId) throws Exception {
         notebookService.removeNotebookCell(notebookId, notebookCellId);
+    }
+
+    @GetMapping("/{notebook-id}/cell/{cell-id}/run")
+    public void runNotebookCell(@PathVariable("notebook-id") UUID notebookId,
+                                @PathVariable("cell-id") UUID notebookCellId) throws Exception {
+        notebookService.runNotebookCell(notebookId, notebookCellId);
     }
 }

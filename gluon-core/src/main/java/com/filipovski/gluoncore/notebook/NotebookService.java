@@ -61,4 +61,14 @@ public class NotebookService {
 
         notebookCellRepository.deleteById(NotebookCellId.from(notebookCellId.toString()));
     }
+
+    public void runNotebookCell(UUID notebookId, UUID notebookCellId) throws Exception {
+        NotebookCell cell = notebookCellRepository.findNotebookCell(
+                        NotebookId.from(notebookId.toString()),
+                        NotebookCellId.from(notebookCellId.toString())
+                ).orElseThrow(() -> new Exception("Notebook cell could not be found"));
+
+        cell.run();
+        notebookCellRepository.save(cell);
+    }
 }
