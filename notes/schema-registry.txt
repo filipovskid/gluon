@@ -1,0 +1,8 @@
+List all schema subjects:
+curl -X GET http://192.168.1.101:8081/subjects
+
+List subject versions:
+curl -X GET http://192.168.1.101:8081/subjects/tasks-value/versions
+
+Delete schema subject:
+curl -X DELETE http://192.168.1.101:8081/subjects/tasks-value
