@@ -10,6 +10,8 @@ import lombok.Getter;
 import java.time.Instant;
 import java.util.Objects;
 
+// TODO: Introduce a session within which an execution will happen
+
 @Getter
 public class CellExecutionStartedEvent implements DomainEvent {
 
@@ -21,12 +23,18 @@ public class CellExecutionStartedEvent implements DomainEvent {
 
     private final String code;
 
+    private final Instant startTime;
+
     private final Instant occuredOn;
 
-    private CellExecutionStartedEvent(NotebookCellId cellId, NotebookId notebookId, String language,
-                                      String code) {
+    private CellExecutionStartedEvent(NotebookCellId cellId,
+                                      NotebookId notebookId,
+                                      String language,
+                                      String code,
+                                      Instant startTime) {
         this.cellId = Objects.requireNonNull(cellId, "cellId must not be null");
         this.notebookId = Objects.requireNonNull(notebookId, "notebookId must not be null");
+        this.startTime = Objects.requireNonNull(startTime, "startTime must not be null");
 
         if (Strings.isNullOrEmpty(language))
             throw new IllegalArgumentException("language must not be empty");
@@ -41,7 +49,8 @@ public class CellExecutionStartedEvent implements DomainEvent {
                 cell.id(),
                 cell.getNotebook().id(),
                 cell.getLanguage(),
-                cell.getCode()
+                cell.getCode(),
+                Instant.now()
         );
     }
 

@@ -3,6 +3,7 @@
   "type": "record",
   "name": "ExecutionTaskCreatedRecord",
   "fields": [
+    { "name": "id", "type": "string" },
     { "name": "language", "type": "string" },
     { "name": "code", "type": "string" }
   ]

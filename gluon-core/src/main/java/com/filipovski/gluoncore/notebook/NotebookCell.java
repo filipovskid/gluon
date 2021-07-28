@@ -9,7 +9,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 import java.util.Objects;
 
-// TODO Track cell execution lifecycle
+// TODO: Track cell execution lifecycle.
+// TODO: Should have a service that knows the isolation level of a cell execution.
+//       This service should be able to create a sessionId which identifies the
+//       environment within which the code will be executed.
 
 @Getter
 @Entity(name = "notebook_cells")
@@ -43,7 +46,7 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
     }
 
     public void run() {
-        // TODO Track notebook cell's execution state. Ensure proper state transition.
+        // TODO: Track notebook cell's execution state. Ensure proper state transition.
 
         registerEvent(CellExecutionStartedEvent.from(this));
     }

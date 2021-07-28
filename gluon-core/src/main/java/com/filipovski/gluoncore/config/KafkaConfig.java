@@ -10,6 +10,6 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${kafka.execution.tasks-topic}")
+    @Value("${kafka.execution.tasks.topic}")
     private String tasksTopic;
 }

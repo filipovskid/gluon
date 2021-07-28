@@ -3,6 +3,9 @@ package com.filipovski.gluoncore.notebook;
 import com.filipovski.common.domain.DomainObjectId;
 import com.google.common.base.Strings;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class NotebookCellId extends DomainObjectId {
 
     public NotebookCellId() {

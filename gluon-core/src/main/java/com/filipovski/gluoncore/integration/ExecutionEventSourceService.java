@@ -2,6 +2,7 @@ package com.filipovski.gluoncore.integration;
 
 import com.filipovski.gluon.common.integration.avro.ExecutionTaskCreatedRecord;
 import com.filipovski.gluoncore.config.KafkaConfig;
+import com.filipovski.gluoncore.job.events.CellExecutionJobCreatedEvent;
 import com.filipovski.gluoncore.notebook.events.CellExecutionStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +25,14 @@ public class ExecutionEventSourceService {
     }
 
     @EventListener
-    public void onCellExecutionStarted(@NonNull CellExecutionStartedEvent event) {
+    public void onCellExecutionJobCreated(@NonNull CellExecutionJobCreatedEvent event) {
         ExecutionTaskCreatedRecord remoteEvent = ExecutionTaskCreatedRecord.newBuilder()
+                .setId(event.getJobId())
                 .setLanguage(event.getLanguage())
                 .setCode(event.getCode())
                 .build();
 
-        kafkaTemplate.send(config.getTasksTopic(), event.getCellId().getId(), remoteEvent);
+        kafkaTemplate.send(config.getTasksTopic(), event.getSessionid(), remoteEvent);
     }
 
 }
