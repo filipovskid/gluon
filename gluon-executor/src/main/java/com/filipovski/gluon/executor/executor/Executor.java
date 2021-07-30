@@ -1,4 +1,4 @@
-package com.filipovski.gluonexecutor.executor;
+package com.filipovski.gluon.executor.executor;
 
 /**
  * {@link Executor} is responsible for executing supported commands.

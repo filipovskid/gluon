@@ -1,4 +1,4 @@
-package com.filipovski.gluonexecutor.executor;
+package com.filipovski.gluon.executor.executor;
 
 /**
  * Executor base class that manages common activities.

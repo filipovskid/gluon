@@ -1,4 +1,4 @@
-package com.filipovski.gluonexecutor.task;
+package com.filipovski.gluon.executor.task;
 
 /**
  * {@link Task} is a unit of execution managed by Gluon. Extending

@@ -1,4 +1,4 @@
-package com.filipovski.gluonexecutor.task;
+package com.filipovski.gluon.executor.task;
 
 /**
  * Represents the states in which a {@link Task} can be after its creation.
