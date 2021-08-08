@@ -15,7 +15,7 @@ public interface ResourceManagerBackend {
      * @return CompletableFuture that wraps the worker node information.
      */
 
-    CompletableFuture<WorkerNode> requestResource();
+    CompletableFuture<? extends WorkerNode> requestResource();
 
     /**
      * Release resources to an external resource manager.
