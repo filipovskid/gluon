@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import executor_driver_pb2 as executor__driver__pb2
+from . import executor_driver_pb2 as executor__driver__pb2
 
 
 class ExecutorDriverStub(object):
