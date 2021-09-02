@@ -1,15 +1,29 @@
 import ast
+import types
 
 from typing import List
 
 # TODO: Handle shell inputs or just drop them
 
 class InteractiveShell:
-    """Interactive shell for python that can execute arbitrary code"""
+    """Interactive shell for python that can execute arbitrary code."""
 
     def __init__(self):
-        self.local = {}
-        self.glb = {}
+        self.init_execution_namespace()
+
+    def init_execution_namespace(self):
+        """Initialize the namespace of the execution environment.
+
+        The interactive execution behaves as if the code is being executed as part of
+        a module, thus we initialize a module and use its __dict__ as a namespace
+        during execution."""
+
+        self.module = types.ModuleType("__main__", doc="Gluon interactive executor environment")
+        self.local_ns = self.module.__dict__
+
+    @property
+    def global_ns(self):
+        return self.module.__dict__
 
     def run_source_code(self, source_code: str):
         """
@@ -63,6 +77,6 @@ class InteractiveShell:
         """
 
         try:
-            exec(code, self.glb, self.local)
+            exec(code, self.global_ns, self.local_ns)
         except:
             pass
