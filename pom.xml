@@ -8,6 +8,7 @@
         <module>gluon-core</module>
         <module>gluon-server</module>
         <module>gluon-executor</module>
+        <module>gluon-python</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
