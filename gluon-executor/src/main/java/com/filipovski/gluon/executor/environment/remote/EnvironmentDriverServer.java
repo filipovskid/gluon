@@ -3,9 +3,8 @@ package com.filipovski.gluon.executor.environment.remote;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import io.grpc.ServerServiceDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class EnvironmentDriverServer {
 
-    private final Logger logger = LoggerFactory.getLogger(EnvironmentDriverServer.class);
+    private final Logger logger = LogManager.getLogger(EnvironmentDriverServer.class);
 
     private final int port;
 
