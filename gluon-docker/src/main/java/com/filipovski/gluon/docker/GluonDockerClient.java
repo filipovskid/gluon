@@ -33,6 +33,7 @@ public class GluonDockerClient {
      * @param configurableContainer Configured container from which a docker container is started
      * @return Returns information for the started container
      */
+    // TODO: startContainerCmd is not asynchronous. Check whether it is slow.
     public DockerContainer startContainer(ConfigurableDockerContainer configurableContainer) {
         CreateContainerResponse preparedContainer = configurableContainer.getInternalContainer().exec();
         client.startContainerCmd(preparedContainer.getId()).exec();

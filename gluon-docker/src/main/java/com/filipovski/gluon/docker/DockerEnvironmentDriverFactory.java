@@ -1,5 +1,8 @@
 package com.filipovski.gluon.docker;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A class for configuring an EnvironmentDriver Docker container.
  */
@@ -17,6 +20,7 @@ public class DockerEnvironmentDriverFactory {
     public static ConfigurableDockerContainer configureEnvironmentDriverContainer(GluonDockerClient client) {
         ConfigurableDockerContainer configuredContainer = client.createConfigurableContainer();
         configuredContainer = initEnvironmentConfigurer(configuredContainer);
+        configuredContainer = paramEnvironmentConfigurer(configuredContainer);
 
         return configuredContainer;
     }
@@ -24,7 +28,25 @@ public class DockerEnvironmentDriverFactory {
     private static ConfigurableDockerContainer initEnvironmentConfigurer(ConfigurableDockerContainer container) {
         return ConfigurableDockerContainer.from(
                 container.getInternalContainer()
-                .withImage("hello-world")
+                .withImage("gluon-executor:0.0.1")
         );
+    }
+
+    private static ConfigurableDockerContainer paramEnvironmentConfigurer(ConfigurableDockerContainer container) {
+        List<String> commandParameters = Arrays.asList(
+                "--host 192.168.1.100",
+                "--port 24090",
+                "--server-host 192.168.1.100",
+                "--server-port 8082",
+                "--env-id \"test_environment\"",
+                "--worker-id \"test_driver\""
+        );
+
+        return ConfigurableDockerContainer.from(
+                container.getInternalContainer()
+                .withCmd(commandParameters)
+        );
+
+//        --host 192.168.1.100 --port 24090 --server-host 192.168.1.100 --server-port 8082 --env-id "test_environment" --worker-id "test_driver"
     }
 }
