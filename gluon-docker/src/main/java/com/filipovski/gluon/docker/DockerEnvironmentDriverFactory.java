@@ -17,36 +17,41 @@ public class DockerEnvironmentDriverFactory {
      *
      * @return Returns a configured Docker container
      */
-    public static ConfigurableDockerContainer configureEnvironmentDriverContainer(GluonDockerClient client) {
+    public static ConfigurableDockerContainer configureEnvironmentDriverContainer(
+            GluonDockerClient client,
+            EnvironmentDriverContainerSpec envDriverContainerSpec) {
         ConfigurableDockerContainer configuredContainer = client.createConfigurableContainer();
-        configuredContainer = initEnvironmentConfigurer(configuredContainer);
-        configuredContainer = paramEnvironmentConfigurer(configuredContainer);
+        configuredContainer = initEnvironmentConfigurer(configuredContainer, envDriverContainerSpec);
+        configuredContainer = paramEnvironmentConfigurer(configuredContainer, envDriverContainerSpec);
 
         return configuredContainer;
     }
 
-    private static ConfigurableDockerContainer initEnvironmentConfigurer(ConfigurableDockerContainer container) {
+    private static ConfigurableDockerContainer initEnvironmentConfigurer(
+            ConfigurableDockerContainer container,
+            EnvironmentDriverContainerSpec envDriverContainerSpec) {
         return ConfigurableDockerContainer.from(
                 container.getInternalContainer()
-                .withImage("gluon-executor:0.0.1")
+                        .withImage(envDriverContainerSpec.getImage())
         );
     }
 
-    private static ConfigurableDockerContainer paramEnvironmentConfigurer(ConfigurableDockerContainer container) {
+    private static ConfigurableDockerContainer paramEnvironmentConfigurer(
+            ConfigurableDockerContainer container,
+            EnvironmentDriverContainerSpec envDriverContainerSpec) {
         List<String> commandParameters = Arrays.asList(
-                "--host 192.168.1.100",
-                "--port 24090",
-                "--server-host 192.168.1.100",
-                "--server-port 8082",
-                "--env-id \"test_environment\"",
+                "--host %s".formatted(envDriverContainerSpec.getEnvironmentHost()),
+                "--port %d".formatted(envDriverContainerSpec.getEnvironmentPort()),
+                "--server-host %s".formatted(envDriverContainerSpec.getServerHost()),
+                "--server-port %d".formatted(envDriverContainerSpec.getServerPort()),
+                "--env-id %s".formatted(envDriverContainerSpec.getEnvironmentId()),
                 "--worker-id \"test_driver\""
         );
 
         return ConfigurableDockerContainer.from(
                 container.getInternalContainer()
-                .withCmd(commandParameters)
+                        .withCmd(commandParameters)
         );
 
-//        --host 192.168.1.100 --port 24090 --server-host 192.168.1.100 --server-port 8082 --env-id "test_environment" --worker-id "test_driver"
     }
 }

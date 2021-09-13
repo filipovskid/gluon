@@ -1,8 +1,6 @@
 package com.filipovski.gluonserver.resourcemanager;
 
-import com.filipovski.gluon.executor.resourcemanager.ResourceManager;
-import com.filipovski.gluon.executor.resourcemanager.ResourceManagerBackend;
-import com.filipovski.gluon.executor.resourcemanager.WorkerNode;
+import com.filipovski.gluon.executor.resourcemanager.*;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,15 +18,13 @@ public class ReactiveResourceManager implements ResourceManager {
 
     private final ResourceManagerBackend resourceManagerBackend;
 
-
-
     public ReactiveResourceManager(ResourceManagerBackend resourceManagerBackend) {
         this.resourceManagerBackend = resourceManagerBackend;
     }
 
     @Override
-    public CompletableFuture<WorkerNode> startWorkerNode() {
-        return resourceManagerBackend.requestResource()
+    public CompletableFuture<WorkerNode> startWorkerNode(WorkerNodeSpec workerNodeSpec) {
+        return resourceManagerBackend.requestResource(new EnvironmentDriverSpec(workerNodeSpec.getOwnerId()))
                 .thenApply(workerNode -> (WorkerNode) workerNode);
     }
 

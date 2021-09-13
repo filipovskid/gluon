@@ -15,7 +15,7 @@ public interface ResourceManagerBackend {
      * @return CompletableFuture that wraps the worker node information.
      */
 
-    CompletableFuture<? extends WorkerNode> requestResource();
+    CompletableFuture<? extends WorkerNode> requestResource(EnvironmentDriverSpec environmentDriverSpec);
 
     /**
      * Release resources to an external resource manager.

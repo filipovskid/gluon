@@ -3,6 +3,7 @@ package com.filipovski.gluonserver.environment;
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
 import com.filipovski.gluon.executor.resourcemanager.ResourceManager;
 import com.filipovski.gluon.executor.resourcemanager.WorkerNode;
+import com.filipovski.gluon.executor.resourcemanager.WorkerNodeSpec;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -14,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * This is where {@link ExecutionEnvironment}s are created and associated with
  * a given session.
  */
+// TODO: Worker specification should be configured with an environment id instead
+//       of a session id
 
 @Service
 public class EnvironmentManager {
@@ -38,7 +41,8 @@ public class EnvironmentManager {
     }
 
     private Optional<ExecutionEnvironment> createSessionEnvironment(String sessionId) {
-        CompletableFuture<WorkerNode> workerNodeFuture = resourceManager.startWorkerNode();
+        WorkerNodeSpec workerNodeSpec = new WorkerNodeSpec(sessionId);
+        CompletableFuture<WorkerNode> workerNodeFuture = resourceManager.startWorkerNode(workerNodeSpec);
         EnvironmentRegistration environmentRegistration = new EnvironmentRegistration(workerNodeFuture);
         pendingEnvironmentSessionRegistrations.put(sessionId, environmentRegistration);
 

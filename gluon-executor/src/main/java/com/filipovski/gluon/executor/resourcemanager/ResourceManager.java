@@ -22,7 +22,7 @@ public interface ResourceManager {
      *
      * @return CompletableFuture that wraps the allocated worker node.
      */
-    CompletableFuture<WorkerNode> startWorkerNode();
+    CompletableFuture<WorkerNode> startWorkerNode(WorkerNodeSpec workerNodeSpec);
 
     /**
      * Stop a worker node and decide whether resources should be released.
