@@ -2,7 +2,7 @@ package com.filipovski.gluonserver.environment;
 
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
 import com.filipovski.gluon.executor.resourcemanager.ResourceManager;
-import com.filipovski.gluon.executor.resourcemanager.WorkerNode;
+import com.filipovski.gluon.executor.resourcemanager.WorkerAllocationResponse;
 import com.filipovski.gluon.executor.resourcemanager.WorkerNodeSpec;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class EnvironmentManager {
 
     // Mappings sessionId -> execution environment. This might be subject to a change
     // by introducing some sort of state/session and a corresponding store.
-    private Map<String, ExecutionEnvironment> environmentSessions;
+    private Map<String, ExecutionEnvironment> sessionEnvironments;
 
     private Map<String, EnvironmentRegistration> pendingEnvironmentSessionRegistrations;
 
@@ -31,31 +31,29 @@ public class EnvironmentManager {
 
     public EnvironmentManager(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
-        environmentSessions = new ConcurrentHashMap<>();
+        sessionEnvironments = new ConcurrentHashMap<>();
         pendingEnvironmentSessionRegistrations = new ConcurrentHashMap<>();
     }
 
-    public Optional<ExecutionEnvironment> getOrCreateSessionEnvironment(String sessionId) {
-        return getSessionEnvironment(sessionId)
-                .or(() -> createSessionEnvironment(sessionId));
-    }
-
-    private Optional<ExecutionEnvironment> createSessionEnvironment(String sessionId) {
+    public void createSessionEnvironment(String sessionId) {
         WorkerNodeSpec workerNodeSpec = new WorkerNodeSpec(sessionId);
-        CompletableFuture<WorkerNode> workerNodeFuture = resourceManager.startWorkerNode(workerNodeSpec);
-        EnvironmentRegistration environmentRegistration = new EnvironmentRegistration(workerNodeFuture);
+
+        CompletableFuture<WorkerAllocationResponse> workerRequestFuture =
+                resourceManager.startWorkerNode(workerNodeSpec);
+
+        EnvironmentRegistration environmentRegistration = new EnvironmentRegistration(workerRequestFuture);
         pendingEnvironmentSessionRegistrations.put(sessionId, environmentRegistration);
 
-        workerNodeFuture.whenCompleteAsync((WorkerNode workerNode, Throwable throwable) -> {
-            if (throwable != null)
+        workerRequestFuture.handle((allocationResponse, throwable) -> {
+            if (throwable != null) {
                 pendingEnvironmentSessionRegistrations.remove(sessionId);
+            }
+            return null;
         });
-
-        return getSessionEnvironment(sessionId);
     }
 
-    private Optional<ExecutionEnvironment> getSessionEnvironment(String sessionId) {
-        ExecutionEnvironment environment = environmentSessions.get(sessionId);
+    public Optional<ExecutionEnvironment> getSessionEnvironment(String sessionId) {
+        ExecutionEnvironment environment = sessionEnvironments.get(sessionId);
 
         return environment == null ? Optional.empty() : Optional.of(environment);
     }
@@ -63,4 +61,5 @@ public class EnvironmentManager {
     public void registerExecutionEnvironment() {
         // TODO: Method to be called when Environment is ready
     }
+
 }
