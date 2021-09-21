@@ -7,7 +7,6 @@ import com.filipovski.gluon.executor.util.ConnectivityUtil;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,8 +20,6 @@ public class DockerResourceManagerBackend implements ResourceManagerBackend {
      * Resource requests for ongoing resource allocations.
      */
     private Map<String, CompletableFuture<DockerWorkerNode>> resourceRequests;
-
-    private final Random random = new Random();
 
     public DockerResourceManagerBackend(GluonDockerClient client) {
         this.client = client;
