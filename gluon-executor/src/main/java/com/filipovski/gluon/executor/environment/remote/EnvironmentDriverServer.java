@@ -3,6 +3,7 @@ package com.filipovski.gluon.executor.environment.remote;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -34,7 +35,10 @@ public class EnvironmentDriverServer {
                                    BindableService bindableService,
                                    int port) {
         this.port = port;
-        this.server = serverBuilder.addService(bindableService).build();
+        this.server = serverBuilder
+                .addService(bindableService)
+                .addService(ProtoReflectionService.newInstance())
+                .build();
     }
 
     public void start() throws IOException {

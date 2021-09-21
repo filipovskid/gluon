@@ -6,6 +6,8 @@ import com.filipovski.gluon.executor.proto.EnvironmentRuntimeDriverServiceGrpc;
 import com.filipovski.gluon.executor.proto.ExecutionPayload;
 import com.filipovski.gluon.executor.proto.RemoteExecutionResult;
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -18,6 +20,8 @@ import java.io.IOException;
 
 public class ExecutionEnvironmentDriver
         extends EnvironmentRuntimeDriverServiceGrpc.EnvironmentRuntimeDriverServiceImplBase {
+
+    private final Logger logger = LoggerFactory.getLogger(ExecutionEnvironmentDriver.class);
 
     private final String driverHost;
 
@@ -63,10 +67,12 @@ public class ExecutionEnvironmentDriver
         return driverArgs;
     }
 
-
     @Override
     public void execute(ExecutionPayload request, StreamObserver<RemoteExecutionResult> responseObserver) {
-        super.execute(request, responseObserver);
+        logger.info("Execute([{}])", request);
+
+        responseObserver.onNext(RemoteExecutionResult.newBuilder().build());
+        responseObserver.onCompleted();
     }
 
     public static class EnvironmentDriverArgs {
