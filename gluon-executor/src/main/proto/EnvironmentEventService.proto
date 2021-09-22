@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.filipovski.gluon.executor.proto";
+
+message EnvironmentRegistrationDetails {
+  string sessionId = 1;
+  string environmentId = 2;
+  string host = 3;
+  int32 port = 4;
+}
+
+message EnvironmentRegistrationStatus {
+  bool success = 1;
+}
+
+service EnvironmentEventService {
+
+  rpc registerEnvironmentDriver(EnvironmentRegistrationDetails) returns (EnvironmentRegistrationStatus) { }
+
+}

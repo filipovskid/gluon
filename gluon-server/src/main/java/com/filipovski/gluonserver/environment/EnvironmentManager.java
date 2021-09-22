@@ -4,6 +4,8 @@ import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
 import com.filipovski.gluon.executor.resourcemanager.ResourceManager;
 import com.filipovski.gluon.executor.resourcemanager.WorkerAllocationResponse;
 import com.filipovski.gluon.executor.resourcemanager.WorkerNodeSpec;
+import com.filipovski.gluonserver.environment.remote.EnvironmentRegistrationRequest;
+import com.filipovski.gluonserver.environment.remote.RemoteEnvironment;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -58,8 +60,13 @@ public class EnvironmentManager {
         return environment == null ? Optional.empty() : Optional.of(environment);
     }
 
-    public void registerExecutionEnvironment() {
-        // TODO: Method to be called when Environment is ready
-    }
+    public void onExecutionEnvironmentRegistration(EnvironmentRegistrationRequest registrationRequest) {
+        sessionEnvironments.computeIfAbsent(registrationRequest.getSessionId(), (key) -> {
+            RemoteEnvironment remoteEnvironment = new RemoteEnvironment(registrationRequest.getHost(),
+                    registrationRequest.getPort());
+            remoteEnvironment.open();
 
+            return remoteEnvironment;
+        });
+    }
 }

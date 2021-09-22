@@ -2,9 +2,7 @@ package com.filipovski.gluon.executor.environment.remote;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.filipovski.gluon.executor.proto.EnvironmentRuntimeDriverServiceGrpc;
-import com.filipovski.gluon.executor.proto.ExecutionPayload;
-import com.filipovski.gluon.executor.proto.RemoteExecutionResult;
+import com.filipovski.gluon.executor.proto.*;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +21,8 @@ public class ExecutionEnvironmentDriver
 
     private final Logger logger = LoggerFactory.getLogger(ExecutionEnvironmentDriver.class);
 
+    private final String environmentId;
+
     private final String driverHost;
 
     private final int driverPort;
@@ -33,26 +33,43 @@ public class ExecutionEnvironmentDriver
 
     private final EnvironmentDriverServer server;
 
-    private ExecutionEnvironmentDriver(String host, int port, String serverHost, int serverPort) {
+    private final RemoteEnvironmentEventClient client;
+
+    private ExecutionEnvironmentDriver(String environmentId, String host, int port, String serverHost, int serverPort) {
+        this.environmentId = environmentId;
         driverHost = host;
         driverPort = port;
         gluonServerHost = serverHost;
         gluonServerPort = serverPort;
         server = new EnvironmentDriverServer(this, port);
+        client = new RemoteEnvironmentEventClient(serverHost, serverPort);
     }
 
     private void start() throws IOException, InterruptedException {
-        this.server.start();
-        this.server.awaitTermination();
+        try {
+            this.server.start();
+            this.client.initialize();
+            this.register();
+            this.server.awaitTermination();
+        } catch (Exception e) {
+            logger.warn("Environment driver failed to start, exception: [{}]", e);
+            stop();
+        }
+    }
+
+    private void stop() {
+        this.server.shutdown();
+        logger.info("Environment driver stopped successfully!");
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         EnvironmentDriverArgs driverArgs = parseArguments(args);
         ExecutionEnvironmentDriver environmentDriver =
-                new ExecutionEnvironmentDriver(driverArgs.host,
+                new ExecutionEnvironmentDriver(driverArgs.environmentId,
+                        driverArgs.host,
                         driverArgs.port,
-                    driverArgs.serverHost,
-                    driverArgs.serverPort
+                        driverArgs.serverHost,
+                        driverArgs.serverPort
                 );
         environmentDriver.start();
     }
@@ -75,17 +92,40 @@ public class ExecutionEnvironmentDriver
         responseObserver.onCompleted();
     }
 
+    public void register() {
+        EnvironmentRegistrationDetails registrationDetails = EnvironmentRegistrationDetails.newBuilder()
+                .setSessionId(this.environmentId)
+                .setEnvironmentId(this.environmentId)
+                .setHost(this.driverHost)
+                .setPort(this.driverPort)
+                .build();
+
+        try {
+            EnvironmentRegistrationStatus status = client.registerEnvironmentDriver(registrationDetails);
+            if (status.getSuccess()) {
+                logger.info("Registration completed successfully!");
+            } else {
+                logger.warn("Registration failed!");
+                stop();
+            }
+        } catch (Exception e) {
+            logger.warn("Exception occurred while registering environment driver: [{}], exception:",
+                    registrationDetails, e);
+            stop();
+        }
+    }
+
     public static class EnvironmentDriverArgs {
-        @Parameter(names = { "--host", "-h" }, description = "Environment driver hostname")
+        @Parameter(names = {"--host", "-h"}, description = "Environment driver hostname")
         public String host;
 
-        @Parameter(names = { "--port", "-p" }, description = "Environment driver port")
+        @Parameter(names = {"--port", "-p"}, description = "Environment driver port")
         public Integer port;
 
-        @Parameter(names = { "--server-host", "-r" }, description = "Gluon server hostname")
+        @Parameter(names = {"--server-host", "-r"}, description = "Gluon server hostname")
         public String serverHost;
 
-        @Parameter(names = { "--server-port", "-d" }, description = "Gluon server port")
+        @Parameter(names = {"--server-port", "-d"}, description = "Gluon server port")
         public int serverPort;
 
         @Parameter(names = "--env-id", description = "Environment identifier")
