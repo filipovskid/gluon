@@ -1,5 +1,9 @@
 package com.filipovski.gluon.docker;
 
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Ports;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,8 +34,16 @@ public class DockerEnvironmentDriverFactory {
     private static ConfigurableDockerContainer initEnvironmentConfigurer(
             ConfigurableDockerContainer container,
             EnvironmentDriverContainerSpec envDriverContainerSpec) {
+        ExposedPort port = ExposedPort.tcp(envDriverContainerSpec.getEnvironmentPort());
+        Ports portBindings = new Ports();
+        portBindings.bind(port, Ports.Binding.bindPort(envDriverContainerSpec.getEnvironmentPort()));
+        HostConfig hostConfig = HostConfig.newHostConfig()
+                .withPortBindings(portBindings);
+
         return ConfigurableDockerContainer.from(
                 container.getInternalContainer()
+                        .withExposedPorts(port)
+                        .withHostConfig(hostConfig)
                         .withImage(envDriverContainerSpec.getImage())
         );
     }

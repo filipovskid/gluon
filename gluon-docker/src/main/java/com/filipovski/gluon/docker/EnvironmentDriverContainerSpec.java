@@ -33,7 +33,7 @@ public class EnvironmentDriverContainerSpec {
     }
 
     public int getServerPort() {
-        return 8082;
+        return 9090;
     }
 
     public String getImage() {
