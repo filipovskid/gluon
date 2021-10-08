@@ -4,6 +4,7 @@ import com.filipovski.gluon.executor.resourcemanager.EnvironmentDriverSpec;
 import com.filipovski.gluon.executor.resourcemanager.ResourceManagerBackend;
 import com.filipovski.gluon.executor.resourcemanager.WorkerNode;
 import com.filipovski.gluon.executor.util.ConnectivityUtil;
+import com.typesafe.config.Config;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,8 +22,11 @@ public class DockerResourceManagerBackend implements ResourceManagerBackend {
      */
     private Map<String, CompletableFuture<DockerWorkerNode>> resourceRequests;
 
-    public DockerResourceManagerBackend(GluonDockerClient client) {
+    private final Config gluonConfig;
+
+    public DockerResourceManagerBackend(Config gluonConfig, GluonDockerClient client) {
         this.client = client;
+        this.gluonConfig = gluonConfig;
         this.resourceRequests = new ConcurrentHashMap<>();
     }
 
@@ -55,6 +59,6 @@ public class DockerResourceManagerBackend implements ResourceManagerBackend {
             e.printStackTrace();
         }
 
-        return new EnvironmentDriverContainerSpec(environmentDriverSpec.getEnvironmentId(), environmentPort);
+        return new EnvironmentDriverContainerSpec(gluonConfig, environmentDriverSpec.getEnvironmentId(), environmentPort);
     }
 }

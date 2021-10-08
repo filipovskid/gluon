@@ -11,15 +11,11 @@ public class TypesafePropertySource extends PropertySource<Config> {
 
     @Override
     public Object getProperty(String path) {
-        if (path.contains("[")) {
-            System.err.println(path);
+        if (path.contains("["))
             return null;
-        }
 
-        if (path.contains(":")) {
-            System.err.println(path);
+        if (path.contains(":"))
             return null;
-        }
 
         if(source.hasPath(path))
             return source.getAnyRef(path);
