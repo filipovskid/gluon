@@ -9,8 +9,8 @@ CLASS_TO_RUN=com.filipovski.gluon.executor.environment.remote.ExecutionEnvironme
 
 CMD=(
   java -cp
-  /jars/gluon-executor-0.0.1-SNAPSHOT.jar
-  -Dloader.main=${CLASS_TO_RUN} org.springframework.boot.loader.PropertiesLauncher
+  /jars/gluon-executor-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+  ${CLASS_TO_RUN}
   ${@}
 )
 

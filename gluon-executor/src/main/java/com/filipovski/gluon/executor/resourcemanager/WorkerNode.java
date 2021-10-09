@@ -38,4 +38,7 @@ public abstract class WorkerNode {
         this.port = port;
     }
 
+    public String getNodeId() {
+        return nodeId;
+    }
 }

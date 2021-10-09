@@ -4,8 +4,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.filipovski.gluon.executor.proto.*;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class ExecutionEnvironmentDriver
         extends EnvironmentRuntimeDriverServiceGrpc.EnvironmentRuntimeDriverServiceImplBase {
 
-    private final Logger logger = LoggerFactory.getLogger(ExecutionEnvironmentDriver.class);
+    private final Logger logger = LogManager.getLogger(EnvironmentDriverServer.class);
 
     private final String environmentId;
 
