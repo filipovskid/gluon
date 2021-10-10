@@ -6,9 +6,10 @@
     <modules>
         <module>common</module>
         <module>gluon-core</module>
-        <module>gluon-server</module>
         <module>gluon-executor</module>
+        <module>gluon-docker</module>
         <module>gluon-python</module>
+        <module>gluon-server</module>
     </modules>
 
     <groupId>com.filipovski</groupId>
