@@ -17,7 +17,7 @@ public interface ExecutionEnvironment {
      * Prepare the environment for task execution. This is the point where the
      * process this environment represents can be started.
      */
-    void open();
+    void start();
 
     /**
      * Execute the {@link Task} within an external process.
@@ -29,5 +29,5 @@ public interface ExecutionEnvironment {
     /**
      * Release the resources taken by the {@link ExecutionEnvironment}.
      */
-    void close();
+    void stop();
 }
