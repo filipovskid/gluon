@@ -1,6 +1,8 @@
 package com.filipovski.gluon.executor.executor.runtime;
 
 import com.filipovski.gluon.executor.configuration.ExecutorConfigOptions;
+import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
+import com.filipovski.gluon.executor.executor.Executor;
 import com.filipovski.gluon.executor.executor.ExecutorProvider;
 import com.filipovski.gluon.executor.plugin.PluginDescriptor;
 import com.filipovski.gluon.executor.plugin.PluginManager;
@@ -17,8 +19,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * A class for loading {@link com.filipovski.gluon.executor.executor.Executor} plugins
- * and their configuration. The main responsibility is to construct executors on-demand.
+ * A class for loading {@link Executor} plugins and their configuration. The main responsibility
+ * is to construct executors on demand.
  *
  * <p>Executor creation is enabled by building and maintaining {@link ExecutorSpec}s for
  * each configured executor.</p>
@@ -60,6 +62,15 @@ public class ExecutorLoader {
                 .flatMap(descriptor -> buildExecutorSpecs(descriptor).stream())
                 .collect(Collectors.toMap(ExecutorSpec::getName, Function.identity(),
                         this::executorNamingConflictHandler));
+    }
+
+    public Optional<Executor> createExecutor(String executorName, ExecutionEnvironment environment) {
+        assertInitialized();
+
+        return Optional.ofNullable(executorSpecs.get(executorName))
+                .map(executorSpec ->
+                        executorSpec.getExecutorProvider().create(environment, executorSpec.getConfiguration())
+                ).or(Optional::empty);
     }
 
     private List<ExecutorSpec> buildExecutorSpecs(PluginDescriptor pluginDescriptor) {
@@ -120,7 +131,7 @@ public class ExecutorLoader {
         String replacementPluginId = replacement.getPluginDescriptor().getPluginId();
 
         logger.warn("Conflicting [{}] executor configuration, for plugins [{}] and [{}], was loaded. " +
-                        "Retaining [{}] plugin configuration.",
+                "Retaining [{}] plugin configuration.",
                 existing.getName(), existingPluginId, replacementPluginId, existingPluginId);
 
         return existing;
