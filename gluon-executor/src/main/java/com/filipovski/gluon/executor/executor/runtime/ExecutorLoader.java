@@ -12,10 +12,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,13 +30,13 @@ public class ExecutorLoader {
 
     private final PluginManager pluginManager;
 
-    private List<ExecutorSpec> executorSpecs;
+    private Map<String, ExecutorSpec> executorSpecs;
 
     private boolean initialized;
 
     public ExecutorLoader(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
-        this.executorSpecs = Collections.emptyList();
+        this.executorSpecs = Collections.emptyMap();
         this.initialized = false;
     }
 
@@ -54,13 +52,14 @@ public class ExecutorLoader {
     }
 
     public List<ExecutorSpec> getExecutorSpecs() {
-        return executorSpecs;
+        return List.copyOf(executorSpecs.values());
     }
 
     public void load() {
         executorSpecs = pluginManager.getPluginDescriptors().stream()
                 .flatMap(descriptor -> buildExecutorSpecs(descriptor).stream())
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(ExecutorSpec::getName, Function.identity(),
+                        this::executorNamingConflictHandler));
     }
 
     private List<ExecutorSpec> buildExecutorSpecs(PluginDescriptor pluginDescriptor) {
@@ -83,15 +82,16 @@ public class ExecutorLoader {
         });
 
         return createExecutorConfigs(config).stream()
-                .map(c -> createExecutorSpec(c, provider))
+                .map(c -> createExecutorSpec(pluginDescriptor, provider, c))
                 .collect(Collectors.toList());
     }
 
-    private ExecutorSpec createExecutorSpec(Config config, ExecutorProvider provider) {
+    private ExecutorSpec createExecutorSpec(PluginDescriptor pluginDescriptor,
+                                            ExecutorProvider provider,
+                                            Config config) {
         String executorName = config.getString(ExecutorConfigOptions.EXECUTOR_NAME);
-        return new ExecutorSpec(executorName, provider, config);
+        return new ExecutorSpec(executorName, pluginDescriptor, provider, config);
     }
-
 
     private List<Config> createExecutorConfigs(Config config) {
         return config.root().keySet().stream()
@@ -113,6 +113,17 @@ public class ExecutorLoader {
                 .filter(metafilePath -> metafilePath.getFileName().toString().equals("executor.conf"))
                 .map(Path::toFile)
                 .findFirst();
+    }
+
+    private ExecutorSpec executorNamingConflictHandler(ExecutorSpec existing, ExecutorSpec replacement) {
+        String existingPluginId = existing.getPluginDescriptor().getPluginId();
+        String replacementPluginId = replacement.getPluginDescriptor().getPluginId();
+
+        logger.warn("Conflicting [{}] executor configuration, for plugins [{}] and [{}], was loaded. " +
+                        "Retaining [{}] plugin configuration.",
+                existing.getName(), existingPluginId, replacementPluginId, existingPluginId);
+
+        return existing;
     }
 
     private void assertInitialized() {
