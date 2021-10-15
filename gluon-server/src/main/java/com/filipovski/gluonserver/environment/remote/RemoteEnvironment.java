@@ -20,7 +20,7 @@ public class RemoteEnvironment implements ExecutionEnvironment {
     }
 
     @Override
-    public void open() {
+    public void start() {
         client.initialize();
     }
 
@@ -33,7 +33,7 @@ public class RemoteEnvironment implements ExecutionEnvironment {
     }
 
     @Override
-    public void close() {
+    public void stop() {
 
     }
 }

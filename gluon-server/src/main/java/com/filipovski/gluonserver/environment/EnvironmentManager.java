@@ -64,7 +64,7 @@ public class EnvironmentManager {
         sessionEnvironments.computeIfAbsent(registrationRequest.getSessionId(), (key) -> {
             RemoteEnvironment remoteEnvironment = new RemoteEnvironment(registrationRequest.getHost(),
                     registrationRequest.getPort());
-            remoteEnvironment.open();
+            remoteEnvironment.start();
 
             return remoteEnvironment;
         });
