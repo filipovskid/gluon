@@ -7,4 +7,6 @@ public class ExecutorConfigOptions {
     public static final String DEFAULT_EXECUTOR_NAME = "executor.default.name";
 
     public static final String EXECUTOR_NAME = "gluon.executor.name";
+
+    public static final String EXECUTOR_CLASS_NAME = "gluon.executor.className";
 }
