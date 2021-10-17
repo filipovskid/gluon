@@ -1,7 +1,7 @@
-package com.filipovski.gluonserver.task;
+package com.filipovski.gluon.executor.task;
 
+import com.filipovski.gluon.executor.environment.RuntimeEnvironment;
 import com.filipovski.gluon.executor.executor.Executor;
-import com.filipovski.gluon.executor.task.Task;
 
 
 import java.util.Objects;
@@ -14,13 +14,10 @@ public class ExecutionStatement extends Task<ExecutionStatementResult> {
 
     private String statement;
 
-    private Executor executor;
-
-    private ExecutionStatement(String taskId, String statement, Executor executor) {
-        super(taskId);
+    private ExecutionStatement(String taskId, String statement, RuntimeEnvironment environment) {
+        super(taskId, environment);
 
         this.statement = statement;
-        this.executor = Objects.requireNonNull(executor);
     }
 
     @Override
@@ -28,11 +25,15 @@ public class ExecutionStatement extends Task<ExecutionStatementResult> {
         // TODO: Implement task execution
     }
 
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public static class Builder {
 
         private String taskId;
         private String statement;
-        private Executor executor;
+        private RuntimeEnvironment environment;
 
         public Builder taskId(String taskId) {
             this.taskId = taskId;
@@ -44,13 +45,13 @@ public class ExecutionStatement extends Task<ExecutionStatementResult> {
             return this;
         }
 
-        public Builder executor(Executor executor) {
-            this.executor = executor;
+        public Builder environment(RuntimeEnvironment environment) {
+            this.environment = environment;
             return this;
         }
 
         public ExecutionStatement build() {
-            return new ExecutionStatement(taskId, statement, executor);
+            return new ExecutionStatement(taskId, statement, environment);
         }
     }
 

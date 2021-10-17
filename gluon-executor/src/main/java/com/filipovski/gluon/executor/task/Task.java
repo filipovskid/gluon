@@ -1,6 +1,10 @@
 package com.filipovski.gluon.executor.task;
 
+import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
+import com.filipovski.gluon.executor.environment.RuntimeEnvironment;
 import com.google.common.base.Strings;
+
+import java.util.Objects;
 
 /**
  * {@link Task} is a unit of execution managed by Gluon. Extending
@@ -13,14 +17,19 @@ import com.google.common.base.Strings;
 public abstract class Task<T extends TaskResult> {
 
     private String taskId;
+
+    private ExecutionEnvironment environment;
+
     private TaskStatus taskStatus;
+
     private T result;
 
-    public Task(String taskId) {
+    public Task(String taskId, ExecutionEnvironment environment) {
         if (Strings.isNullOrEmpty(taskId))
             throw new IllegalArgumentException("taskId must not be empty.");
 
         this.taskId = taskId;
+        this.environment = Objects.requireNonNull(environment);
         this.taskStatus = TaskStatus.CREATED;
         this.result = null;
     }

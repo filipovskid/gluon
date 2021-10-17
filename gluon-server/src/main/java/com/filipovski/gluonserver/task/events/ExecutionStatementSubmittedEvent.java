@@ -1,9 +1,11 @@
 package com.filipovski.gluonserver.task.events;
 
+import com.filipovski.gluon.executor.task.ExecutionStatement;
+
 import java.util.Objects;
 
 /**
- * {@link com.filipovski.gluonserver.task.ExecutionStatement} request arrival event.
+ * {@link ExecutionStatement} request arrival event.
  */
 
 public class ExecutionStatementSubmittedEvent {
