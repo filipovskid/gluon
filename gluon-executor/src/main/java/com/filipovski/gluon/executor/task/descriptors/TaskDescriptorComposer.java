@@ -14,6 +14,10 @@ import java.util.Map;
 
 public interface TaskDescriptorComposer {
 
+    String TASK_ID = "task.id";
+
+    String TASK_CLASS_NAME = "task.className";
+
     TaskDescriptor compose(String taskId, Map<String, String> descriptorProperties);
 
 }

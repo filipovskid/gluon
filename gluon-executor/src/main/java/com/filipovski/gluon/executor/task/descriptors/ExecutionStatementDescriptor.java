@@ -5,6 +5,8 @@ import com.filipovski.gluon.executor.task.ExecutionStatement;
 import java.util.Map;
 
 import static com.filipovski.gluon.executor.task.descriptors.ExecutionStatementDescriptorComposer.STATEMENT;
+import static com.filipovski.gluon.executor.task.descriptors.TaskDescriptorComposer.TASK_CLASS_NAME;
+import static com.filipovski.gluon.executor.task.descriptors.TaskDescriptorComposer.TASK_ID;
 import static java.util.Map.entry;
 
 /**
@@ -27,6 +29,8 @@ public class ExecutionStatementDescriptor extends TaskDescriptor {
     @Override
     public Map<String, String> toDescriptorMap() {
         return Map.ofEntries(
+                entry(TASK_ID, getTaskId()),
+                entry(TASK_CLASS_NAME, getTaskClassName()),
                 entry(STATEMENT, statement)
         );
     }

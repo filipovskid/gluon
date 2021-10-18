@@ -5,6 +5,8 @@ import com.typesafe.config.ConfigFactory;
 
 import java.util.Map;
 
+import static java.util.Map.entry;
+
 /**
  * Composer for the corresponding {@link ExecutionStatementDescriptor}.
  */
@@ -19,7 +21,9 @@ public class ExecutionStatementDescriptorComposer implements TaskDescriptorCompo
 
     static {
         Map<String, String> referenceProperties = Map.ofEntries(
-                Map.entry(STATEMENT, "stmt")
+                entry(TASK_ID, "task-id"),
+                entry(TASK_CLASS_NAME, "class-name"),
+                entry(STATEMENT, "statement")
         );
 
         referenceConfig = ConfigFactory.parseMap(referenceProperties);
