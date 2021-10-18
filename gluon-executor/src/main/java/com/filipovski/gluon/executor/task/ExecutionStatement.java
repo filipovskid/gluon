@@ -2,6 +2,7 @@ package com.filipovski.gluon.executor.task;
 
 import com.filipovski.gluon.executor.environment.RuntimeEnvironment;
 import com.filipovski.gluon.executor.executor.Executor;
+import com.filipovski.gluon.executor.task.descriptors.ExecutionStatementDescriptor;
 
 
 import java.util.Objects;
@@ -10,12 +11,15 @@ import java.util.Objects;
  * A {@link Task} responsible for executing a statement.
  */
 
-public class ExecutionStatement extends Task<ExecutionStatementResult> {
+public class ExecutionStatement extends Task {
 
     private String statement;
 
-    private ExecutionStatement(String taskId, String statement, RuntimeEnvironment environment) {
-        super(taskId, environment);
+    private ExecutionStatement(String taskId,
+                               String statement,
+                               ExecutionStatementDescriptor taskDescriptor,
+                               RuntimeEnvironment environment) {
+        super(taskId, taskDescriptor, environment);
 
         this.statement = statement;
     }
@@ -34,6 +38,7 @@ public class ExecutionStatement extends Task<ExecutionStatementResult> {
         private String taskId;
         private String statement;
         private RuntimeEnvironment environment;
+        private ExecutionStatementDescriptor taskDescriptor;
 
         public Builder taskId(String taskId) {
             this.taskId = taskId;
@@ -50,8 +55,13 @@ public class ExecutionStatement extends Task<ExecutionStatementResult> {
             return this;
         }
 
+        public Builder descriptor(ExecutionStatementDescriptor taskDescriptor) {
+            this.taskDescriptor = taskDescriptor;
+            return this;
+        }
+
         public ExecutionStatement build() {
-            return new ExecutionStatement(taskId, statement, environment);
+            return new ExecutionStatement(taskId, statement, taskDescriptor, environment);
         }
     }
 
