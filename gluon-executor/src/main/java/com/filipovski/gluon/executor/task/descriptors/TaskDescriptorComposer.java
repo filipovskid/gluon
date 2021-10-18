@@ -18,6 +18,6 @@ public interface TaskDescriptorComposer {
 
     String TASK_CLASS_NAME = "task.className";
 
-    TaskDescriptor compose(String taskId, Map<String, String> descriptorProperties);
+    TaskDescriptor compose(Map<String, String> descriptorProperties);
 
 }

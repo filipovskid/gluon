@@ -1,8 +1,10 @@
 package com.filipovski.gluonserver.environment.remote;
 
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
-import com.filipovski.gluon.executor.proto.ExecutionPayload;
+import com.filipovski.gluon.executor.proto.TaskDescriptionData;
+import com.filipovski.gluon.executor.proto.TaskExecutionPayload;
 import com.filipovski.gluon.executor.task.Task;
+import com.filipovski.gluon.executor.task.descriptors.TaskDescriptor;
 
 /**
  * An {@link ExecutionEnvironment} that acts as a proxy for an environment
@@ -27,7 +29,7 @@ public class RemoteEnvironment implements ExecutionEnvironment {
     @Override
     public void execute(Task task) {
         this.client.callFunctionBlocking(client -> {
-            ExecutionPayload payload = ExecutionPayload.newBuilder().build();
+            TaskExecutionPayload payload = createTaskPayload(task);
             return client.execute(payload);
         });
     }
@@ -35,5 +37,18 @@ public class RemoteEnvironment implements ExecutionEnvironment {
     @Override
     public void stop() {
 
+    }
+
+    private TaskExecutionPayload createTaskPayload(Task task) {
+        TaskDescriptor taskDescriptor = task.getTaskDescriptor();
+        TaskDescriptionData taskDescription = TaskDescriptionData.newBuilder()
+                .setTaskClassName(taskDescriptor.getTaskClassName())
+                .putAllDescriptorProperties(taskDescriptor.toDescriptorMap())
+                .build();
+
+        return TaskExecutionPayload.newBuilder()
+                .setTaskId(task.getId())
+                .setTaskDescriptor(taskDescription)
+                .build();
     }
 }

@@ -30,10 +30,13 @@ public class ExecutionStatementDescriptorComposer implements TaskDescriptorCompo
     }
 
     @Override
-    public ExecutionStatementDescriptor compose(String taskId, Map<String, String> descriptorProperties) {
+    public ExecutionStatementDescriptor compose(Map<String, String> descriptorProperties) {
         Config descriptorConfig = ConfigFactory.parseMap(descriptorProperties);
         descriptorConfig.checkValid(referenceConfig, STATEMENT_TASK_PREFIX);
 
-        return new ExecutionStatementDescriptor(taskId, descriptorConfig.getString(STATEMENT));
+        return new ExecutionStatementDescriptor(
+                descriptorConfig.getString(TASK_ID),
+                descriptorConfig.getString(STATEMENT)
+        );
     }
 }
