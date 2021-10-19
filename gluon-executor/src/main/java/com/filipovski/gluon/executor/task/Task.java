@@ -1,7 +1,6 @@
 package com.filipovski.gluon.executor.task;
 
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
-import com.filipovski.gluon.executor.environment.RuntimeEnvironment;
 import com.filipovski.gluon.executor.task.descriptors.TaskDescriptor;
 import com.google.common.base.Strings;
 
@@ -25,7 +24,6 @@ public abstract class Task {
 
     private TaskStatus taskStatus;
 
-
     public Task(String taskId, TaskDescriptor taskDescriptor, ExecutionEnvironment environment) {
         if (Strings.isNullOrEmpty(taskId))
             throw new IllegalArgumentException("taskId must not be empty.");
@@ -39,7 +37,7 @@ public abstract class Task {
     /**
      * Task execution logic.
      */
-    public abstract void doRun();
+    protected abstract void doRun();
 
     public final void run() {
         doRun();
@@ -56,4 +54,5 @@ public abstract class Task {
     public ExecutionEnvironment getEnvironment() {
         return environment;
     }
+
 }

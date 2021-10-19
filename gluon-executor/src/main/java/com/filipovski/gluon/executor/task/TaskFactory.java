@@ -1,6 +1,6 @@
 package com.filipovski.gluon.executor.task;
 
-import com.filipovski.gluon.executor.environment.RuntimeEnvironment;
+import com.filipovski.gluon.executor.environment.runtime.RuntimeEnvironment;
 import com.filipovski.gluon.executor.task.descriptors.ExecutionStatementDescriptor;
 import com.filipovski.gluon.executor.task.descriptors.TaskDescriptor;
 
@@ -38,6 +38,7 @@ public class TaskFactory {
         return ExecutionStatement.newBuilder()
                 .taskId(statementDescriptor.getTaskId())
                 .statement(statementDescriptor.getStatement())
+                .executor(statementDescriptor.getExecutorIdentifier())
                 .environment(environment)
                 .build();
     }

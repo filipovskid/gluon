@@ -3,11 +3,16 @@ package com.filipovski.gluon.executor.environment.remote;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.filipovski.gluon.executor.configuration.EnvironmentConfigOptions;
+import com.filipovski.gluon.executor.environment.runtime.RuntimeEnvironment;
 import com.filipovski.gluon.executor.executor.runtime.ExecutorLoader;
 import com.filipovski.gluon.executor.executor.runtime.RuntimeExecutorManager;
 import com.filipovski.gluon.executor.plugin.DirectoryPluginFinder;
 import com.filipovski.gluon.executor.plugin.PluginManager;
 import com.filipovski.gluon.executor.proto.*;
+import com.filipovski.gluon.executor.task.Task;
+import com.filipovski.gluon.executor.task.TaskFactory;
+import com.filipovski.gluon.executor.task.descriptors.TaskDescriptor;
+import com.filipovski.gluon.executor.task.descriptors.TaskDescriptorFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.grpc.stub.StreamObserver;
@@ -48,7 +53,7 @@ public class ExecutionEnvironmentDriver
 
     private final ExecutorLoader executorLoader;
 
-//    private final PluginManager pluginManager;
+    private final RuntimeEnvironment runtimeEnvironment;
 
     private ExecutionEnvironmentDriver(String environmentId, Config configuration) {
         this.environmentId = environmentId;
@@ -59,8 +64,7 @@ public class ExecutionEnvironmentDriver
                 configuration.getInt(EnvironmentConfigOptions.GLUON_SERVER_PORT)
         );
         this.executorLoader = createExecutorLoader(configuration);
-
-        RuntimeExecutorManager executorManager = new RuntimeExecutorManager(executorLoader);
+        this.runtimeEnvironment = createRuntimeEnvironment();
     }
 
     private void start() throws IOException, InterruptedException {
@@ -121,12 +125,27 @@ public class ExecutionEnvironmentDriver
         return new ExecutorLoader(pluginManager);
     }
 
+    private RuntimeEnvironment createRuntimeEnvironment() {
+        RuntimeExecutorManager executorManager = new RuntimeExecutorManager(executorLoader);
+
+        return new RuntimeEnvironment(executorManager);
+    }
+
     @Override
-    public void execute(ExecutionPayload request, StreamObserver<RemoteExecutionResult> responseObserver) {
+    public void execute(TaskExecutionPayload request, StreamObserver<RemoteExecutionResult> responseObserver) {
         logger.info("Execute([{}])", request);
+        Task task = createRuntimeTask(request);
+        runtimeEnvironment.execute(task);
 
         responseObserver.onNext(RemoteExecutionResult.newBuilder().build());
         responseObserver.onCompleted();
+    }
+
+    public Task createRuntimeTask(TaskExecutionPayload request) {
+        Map<String, String> descriptorProperties = request.getTaskDescriptor().getDescriptorPropertiesMap();
+        TaskDescriptor descriptor = TaskDescriptorFactory.create(descriptorProperties);
+
+        return TaskFactory.create(descriptor, runtimeEnvironment);
     }
 
     public void register() {

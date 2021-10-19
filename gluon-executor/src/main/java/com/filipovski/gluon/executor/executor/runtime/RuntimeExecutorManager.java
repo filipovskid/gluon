@@ -1,6 +1,7 @@
 package com.filipovski.gluon.executor.executor.runtime;
 
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
+import com.filipovski.gluon.executor.environment.runtime.RuntimeEnvironment;
 import com.filipovski.gluon.executor.executor.Executor;
 import com.filipovski.gluon.executor.executor.ExecutorManager;
 
@@ -10,9 +11,9 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class is a runtime implementation of {@link ExecutorManager} used for creating and managing
- * {@link Executor}s within a {@link com.filipovski.gluon.executor.environment.RuntimeEnvironment}.
- * {@link RuntimeExecutorManager} guarantees to maintain at most a single instance of a given
- * type of executor within the environment driver runtime environment.
+ * {@link Executor}s within a {@link RuntimeEnvironment}. {@link RuntimeExecutorManager} guarantees
+ * to maintain at most a single instance of a given type of executor within the environment driver
+ * runtime environment.
  *
  * <p>An instance of this executor manager is meant to be used within a single runtime environment.
  * Managing executors for multiple environments can produce unexpected behaviour, which can result

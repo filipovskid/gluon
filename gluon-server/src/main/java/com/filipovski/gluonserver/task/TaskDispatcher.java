@@ -42,8 +42,11 @@ public class TaskDispatcher {
 
     private RemoteTask createExecutionStatementTask(ExecutionStatementSubmittedEvent event,
                                                     ExecutionEnvironment environment) {
-        ExecutionStatementDescriptor descriptor =
-                new ExecutionStatementDescriptor(event.getTaskId(), event.getStatement());
+        ExecutionStatementDescriptor descriptor = new ExecutionStatementDescriptor(
+                        event.getTaskId(),
+                        event.getStatement(),
+                        event.getExecutorIdentifier()
+                );
 
         return new RemoteTask(event.getTaskId(), descriptor, environment);
     }
