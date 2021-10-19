@@ -10,6 +10,7 @@ import com.filipovski.gluon.executor.plugin.DirectoryPluginFinder;
 import com.filipovski.gluon.executor.plugin.PluginManager;
 import com.filipovski.gluon.executor.proto.*;
 import com.filipovski.gluon.executor.task.Task;
+import com.filipovski.gluon.executor.task.TaskExecutionActions;
 import com.filipovski.gluon.executor.task.TaskFactory;
 import com.filipovski.gluon.executor.task.descriptors.TaskDescriptor;
 import com.filipovski.gluon.executor.task.descriptors.TaskDescriptorFactory;
@@ -127,8 +128,9 @@ public class ExecutionEnvironmentDriver
 
     private RuntimeEnvironment createRuntimeEnvironment() {
         RuntimeExecutorManager executorManager = new RuntimeExecutorManager(executorLoader);
+        TaskExecutionActions taskExecutionActions = new TaskExecutionActions(client);
 
-        return new RuntimeEnvironment(executorManager);
+        return new RuntimeEnvironment(executorManager, taskExecutionActions);
     }
 
     @Override

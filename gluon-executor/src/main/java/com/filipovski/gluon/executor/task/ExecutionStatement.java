@@ -26,6 +26,8 @@ public class ExecutionStatement extends Task {
 
     private final RuntimeContext runtimeContext;
 
+    private final TaskExecutionActions taskExecutionActions;
+
     private final ExecutorManager executorManager;
 
     private Executor executor;
@@ -40,6 +42,7 @@ public class ExecutionStatement extends Task {
         this.statement = statement;
         this.executorIdentifier = executorIdentifier;
         this.runtimeContext = environment.getRuntimeContext();
+        this.taskExecutionActions = runtimeContext.getTaskExecutionActions();
         this.executorManager = runtimeContext.getExecutorManager();
     }
 
@@ -47,12 +50,26 @@ public class ExecutionStatement extends Task {
     protected void doRun() {
         // TODO: Implement cancellation. Task transition should be atomic if multiple threads are involved.
 
+        updateState(TaskStatus.RUNNING);
+
         ExecutionData executionData = createExecutionData();
         ExecutionContext executionContext = createExecutionContext();
 
-        executor = executorManager.obtainExecutor(executorIdentifier, getEnvironment())
-                .orElseThrow(this::handleExecutorNotFound);
-        executor.execute(executionData, executionContext);
+        try {
+            executor = executorManager.obtainExecutor(executorIdentifier, getEnvironment())
+                    .orElseThrow(this::handleExecutorNotFound);
+            executor.execute(executionData, executionContext);
+
+            updateState(TaskStatus.COMPLETED);
+        } catch(Exception e) {
+            updateState(TaskStatus.FAILED);
+        }
+    }
+
+    private void updateState(TaskStatus status) {
+        if (transitionState(status)) {
+            taskExecutionActions.updateTaskExecutionState(new TaskExecutionState(getId(), status));
+        }
     }
 
     private ExecutionData createExecutionData() {

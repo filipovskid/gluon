@@ -14,6 +14,8 @@ import java.util.Objects;
  * <p>Execution of the {@link Task} starts by invoking the {@link #run()} method.</p>
  */
 
+// TODO: Task status transition should be atomic once cancallation is introduced
+
 public abstract class Task {
 
     private String taskId;
@@ -55,4 +57,13 @@ public abstract class Task {
         return environment;
     }
 
+    public boolean transitionState(TaskStatus status) {
+        // States are ordered in a way that transition can happen from earlier states.
+
+        if (taskStatus.compareTo(status) > 0)
+            return false;
+
+        taskStatus = status;
+        return true;
+    }
 }

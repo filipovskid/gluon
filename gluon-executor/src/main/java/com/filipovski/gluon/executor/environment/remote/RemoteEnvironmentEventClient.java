@@ -1,10 +1,8 @@
 package com.filipovski.gluon.executor.environment.remote;
 
-import com.filipovski.gluon.executor.proto.EnvironmentEventServiceGrpc;
+import com.filipovski.gluon.executor.proto.*;
 import com.filipovski.gluon.executor.proto.EnvironmentEventServiceGrpc.EnvironmentEventServiceBlockingStub;
 import com.filipovski.gluon.executor.proto.EnvironmentEventServiceGrpc.EnvironmentEventServiceStub;
-import com.filipovski.gluon.executor.proto.EnvironmentRegistrationDetails;
-import com.filipovski.gluon.executor.proto.EnvironmentRegistrationStatus;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -41,5 +39,9 @@ public class RemoteEnvironmentEventClient {
 
     public EnvironmentRegistrationStatus registerEnvironmentDriver(EnvironmentRegistrationDetails registrationDetails) {
         return this.blockingStub.registerEnvironmentDriver(registrationDetails);
+    }
+
+    public TaskStateUpdateStatus updateTaskStatus(TaskStateDetails details) {
+        return this.blockingStub.updateTaskState(details);
     }
 }

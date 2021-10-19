@@ -1,6 +1,7 @@
 package com.filipovski.gluon.executor.environment.runtime;
 
 import com.filipovski.gluon.executor.executor.ExecutorManager;
+import com.filipovski.gluon.executor.task.TaskExecutionActions;
 
 /**
  * RuntimeContext contains information about the runtime in which tasks are executed.
@@ -16,10 +17,17 @@ import com.filipovski.gluon.executor.executor.ExecutorManager;
 
 public class RuntimeContext {
 
+    private final TaskExecutionActions taskExecutionActions;
+
     private final ExecutorManager executorManager;
 
-    public RuntimeContext(ExecutorManager executorManager) {
+    public RuntimeContext(TaskExecutionActions taskExecutionActions, ExecutorManager executorManager) {
+        this.taskExecutionActions = taskExecutionActions;
         this.executorManager = executorManager;
+    }
+
+    public TaskExecutionActions getTaskExecutionActions() {
+        return taskExecutionActions;
     }
 
     public ExecutorManager getExecutorManager() {
