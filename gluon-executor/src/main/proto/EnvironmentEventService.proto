@@ -14,8 +14,30 @@ message EnvironmentRegistrationStatus {
   bool success = 1;
 }
 
+enum TaskExecutionStatus {
+    CREATED = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    CANCELLING = 3;
+    COMPLETED = 4;
+    CANCELED = 5;
+    FAILED = 6;
+}
+
+message TaskStateDetails {
+  string taskId = 1;
+  TaskExecutionStatus status = 2;
+  string result = 3;
+}
+
+message TaskStateUpdateStatus {
+  bool success = 1;
+}
+
 service EnvironmentEventService {
 
   rpc registerEnvironmentDriver(EnvironmentRegistrationDetails) returns (EnvironmentRegistrationStatus) { }
+
+  rpc updateTaskState(TaskStateDetails) returns (TaskStateUpdateStatus) { }
 
 }

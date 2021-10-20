@@ -13,7 +13,7 @@ public interface Executor {
     void start();
 
     /** Executes a command within executor's execution process. */
-    void execute();
+    void execute(ExecutionData data, ExecutionContext executionContext);
 
     /**
      * Shuts down the executor and releases all the resources acquired during

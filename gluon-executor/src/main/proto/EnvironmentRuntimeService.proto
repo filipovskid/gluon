@@ -4,8 +4,14 @@ option java_multiple_files = true;
 option java_package = "com.filipovski.gluon.executor.proto";
 option java_outer_classname = "EnvironmentRuntimeService";
 
-message ExecutionPayload {
+message TaskDescriptionData {
+  string taskClassName = 1;
+  map<string, string> descriptorProperties = 2;
+}
 
+message TaskExecutionPayload {
+  string taskId = 1;
+  TaskDescriptionData taskDescriptor = 2;
 }
 
 message RemoteExecutionResult {
@@ -14,6 +20,6 @@ message RemoteExecutionResult {
 
 service EnvironmentRuntimeDriverService {
 
-  rpc execute(ExecutionPayload) returns (RemoteExecutionResult) {}
+  rpc execute(TaskExecutionPayload) returns (RemoteExecutionResult) {}
 
 }

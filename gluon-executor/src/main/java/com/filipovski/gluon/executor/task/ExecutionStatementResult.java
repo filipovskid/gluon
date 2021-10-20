@@ -1,6 +1,4 @@
-package com.filipovski.gluonserver.task;
-
-import com.filipovski.gluon.executor.task.TaskResult;
+package com.filipovski.gluon.executor.task;
 
 import java.time.Duration;
 

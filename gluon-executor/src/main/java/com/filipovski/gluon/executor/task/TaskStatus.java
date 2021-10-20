@@ -2,6 +2,8 @@ package com.filipovski.gluon.executor.task;
 
 /**
  * Represents the states in which a {@link Task} can be after its creation.
+ *
+ * <p>States are ordered in a way that transition can happen only from earlier states.</p>
  */
 
 public enum TaskStatus {

@@ -30,4 +30,11 @@ public interface ExecutionEnvironment {
      * Release the resources taken by the {@link ExecutionEnvironment}.
      */
     void stop();
+
+    /**
+     * Access runtime context. This is only available during runtime within executor driver.
+     *
+     * @return runtime context.
+     */
+//    RuntimeContext getRuntimeContext();
 }
