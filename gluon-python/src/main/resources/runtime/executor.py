@@ -1,13 +1,45 @@
+import sys
+import threading
+import time
 from concurrent import futures
+from queue import Queue
+
 import grpc
 
-from rpc import executor_driver_pb2_grpc
-from rpc.executor_driver_pb2_grpc import ExecutorDriverServicer
-from rpc.executor_driver_pb2 import ExecutionResponse, ExecutionRequest
+from glutils import OutputStreamBuffer, OutputCapture
+from rpc import python_driver_pb2_grpc
+from rpc.python_driver_pb2_grpc import PythonShellDriverServicer
+from rpc.python_driver_pb2 import ExecutionResponse, ExecutionRequest
 from shell import InteractiveShell
 
 
-class ExecutorApp(ExecutorDriverServicer):
+class Executor:
+
+    def __init__(self):
+        self.output_buffer = OutputStreamBuffer(sys.stdout)
+        self.output_capture = OutputCapture(output_stream=self.output_buffer)
+        self.result_queue = Queue()
+        self.shell = InteractiveShell(output_stream=self.output_buffer,
+                                      result_queue=self.result_queue)
+
+    def execute(self, code):
+        with self.output_capture:
+            self.shell.run_source_code(code)
+
+        self.shell.flush_shell_output()
+
+    def get(self):
+        output = self.result_queue.get()
+        return ExecutionResponse(output=output[1])
+
+    def flush(self):
+        self.shell.flush_shell_output()
+
+    def has_output(self):
+        return not self.result_queue.empty()
+
+
+class ExecutorApp(PythonShellDriverServicer):
     """Entrypoint for executing python code dispatched by Python executor.
 
     This class acts as a gRPC server accepting execution requests from and returning
@@ -20,7 +52,9 @@ class ExecutorApp(ExecutorDriverServicer):
         self.port = port
         self.started = False
         self.server = None
-        self.shell = InteractiveShell()
+        self.executor = Executor()
+
+        self._lock = threading.Lock()
 
     def start(self):
         """Start the gRPC server and wait for requests from Python executor."""
@@ -29,7 +63,7 @@ class ExecutorApp(ExecutorDriverServicer):
             return
 
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        executor_driver_pb2_grpc.add_ExecutorDriverServicer_to_server(self, self.server)
+        python_driver_pb2_grpc.add_PythonShellDriverServicer_to_server(self, self.server)
         self.server.add_insecure_port(self._create_address())
         self.started = True
         self.server.start()
@@ -39,5 +73,18 @@ class ExecutorApp(ExecutorDriverServicer):
         return f'[::]:{self.port}'
 
     def execute(self, request: ExecutionRequest, context):
-        self.shell.run_source_code(request.code)
-        return ExecutionResponse(output="Test output")
+        execution_thread = threading.Thread(target=self.executor.execute, args=(request.code,))
+
+        with self._lock:
+            execution_thread.start()
+
+            while execution_thread.is_alive() or self.executor.has_output():
+                time.sleep(.2)
+                self.executor.flush()
+
+                while self.executor.has_output():
+                    yield self.executor.get()
+
+            self.executor.flush()
+            if self.executor.has_output():
+                yield self.executor.get()
