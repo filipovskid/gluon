@@ -1,14 +1,20 @@
 import ast
+import traceback
 import types
 
 from typing import List
 
 # TODO: Handle shell inputs or just drop them
+# TODO: Handle shell exceptions both on parse and during code execution
+
 
 class InteractiveShell:
     """Interactive shell for python that can execute arbitrary code."""
 
-    def __init__(self):
+    def __init__(self, output_stream, result_queue):
+        self.output_stream = output_stream
+        self.result_queue = result_queue
+
         self.init_execution_namespace()
 
     def init_execution_namespace(self):
@@ -33,9 +39,15 @@ class InteractiveShell:
         :param source_code : str
             Block of code represented as a string
         """
+        self._clear()
 
-        nodes = ast.parse(source_code).body
-        self.run_ast_nodes(nodes)
+        try:
+            nodes = ast.parse(source_code).body
+            self.run_ast_nodes(nodes)
+            self.flush_shell_output()
+        except Exception as e:
+            self.output_stream.write(str(e))
+            traceback.print_exc()
 
     def run_ast_nodes(self, nodes: List[ast.AST]):
         """
@@ -69,8 +81,7 @@ class InteractiveShell:
 
     def execute_code(self, code):
         """
-        Execute a code object. This method is responsible for handling
-        any problems that might arise during code execution.
+        Execute a code object.
 
         :param code : code object
             Execute a code object as determined during compilation
@@ -78,5 +89,21 @@ class InteractiveShell:
 
         try:
             exec(code, self.global_ns, self.local_ns)
-        except:
-            pass
+        except Exception as e:
+            self.output_stream.write(str(e))
+            # self.output_stream.write(traceback.print_exc())
+
+    def _clear(self):
+        """Clear the buffer for output stream."""
+        self.output_stream.clear()
+
+    def flush_shell_output(self):
+        """Flushing shell execution output and making it available within result queue.
+        This is useful when when we want to ensure that the system outputs are available
+        at certain intervals."""
+
+        output = self.output_stream.getvalue()
+
+        if output:
+            self.output_stream.clear()
+            self.result_queue.put(("text", output))
