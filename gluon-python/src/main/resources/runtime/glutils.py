@@ -35,12 +35,12 @@ class OutputCapture:
         # self.sys_displayhook = sys.displayhook
 
         stdout = sys.stdout = self.output_stream
-        stderr = sys.stderr = self.output_stream
+        # stderr = sys.stderr = self.output_stream
         # sys.displayhook = lambda value: print('called', value)
 
         return stdout #, stderr
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout = self.sys_stdout
-        sys.stderr = self.sys_stderr
+        # sys.stderr = self.sys_stderr
         # sys.displayhook = self.sys_displayhook
