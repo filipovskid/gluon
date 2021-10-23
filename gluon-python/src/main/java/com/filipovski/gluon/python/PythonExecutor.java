@@ -4,6 +4,7 @@ import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
 import com.filipovski.gluon.executor.executor.AbstractExecutor;
 import com.filipovski.gluon.executor.executor.ExecutionContext;
 import com.filipovski.gluon.executor.executor.ExecutionData;
+import com.filipovski.gluon.executor.executor.output.DisplayData;
 import com.filipovski.gluon.executor.util.ConnectivityUtil;
 import com.filipovski.gluon.executor.util.ExternalProcess;
 import com.filipovski.gluon.python.utils.FileUtils;
@@ -66,8 +67,11 @@ public class PythonExecutor extends AbstractExecutor {
 
     @Override
     public void execute(ExecutionData data, ExecutionContext executionContext) {
-        logger.info("Python executor loaded with [{}]", getClass().getClassLoader().toString());
-        pythonShellClient.execute(data.getCode(), logger::info);
+        pythonShellClient.execute(data.getCode(), (executionResponse) -> {
+            DisplayData output = new DisplayData(executionResponse.getOutput(),
+                    DisplayData.Type.valueOf(executionResponse.getType().name()));
+            executionContext.getTaskOutputWriter().write(output);
+        });
     }
 
     @Override

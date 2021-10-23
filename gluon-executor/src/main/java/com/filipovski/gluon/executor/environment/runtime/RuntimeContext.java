@@ -1,6 +1,7 @@
 package com.filipovski.gluon.executor.environment.runtime;
 
 import com.filipovski.gluon.executor.executor.ExecutorManager;
+import com.filipovski.gluon.executor.executor.output.ExecutionOutputWriter;
 import com.filipovski.gluon.executor.task.TaskExecutionActions;
 
 /**
@@ -21,9 +22,14 @@ public class RuntimeContext {
 
     private final ExecutorManager executorManager;
 
-    public RuntimeContext(TaskExecutionActions taskExecutionActions, ExecutorManager executorManager) {
+    private final ExecutionOutputWriter executionOutputWriter;
+
+    public RuntimeContext(TaskExecutionActions taskExecutionActions,
+                          ExecutorManager executorManager,
+                          ExecutionOutputWriter executionOutputWriter) {
         this.taskExecutionActions = taskExecutionActions;
         this.executorManager = executorManager;
+        this.executionOutputWriter = executionOutputWriter;
     }
 
     public TaskExecutionActions getTaskExecutionActions() {
@@ -32,5 +38,9 @@ public class RuntimeContext {
 
     public ExecutorManager getExecutorManager() {
         return executorManager;
+    }
+
+    public ExecutionOutputWriter getExecutionOutputWriter() {
+        return executionOutputWriter;
     }
 }

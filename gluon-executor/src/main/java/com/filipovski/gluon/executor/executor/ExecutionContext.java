@@ -1,6 +1,7 @@
 package com.filipovski.gluon.executor.executor;
 
 import com.filipovski.gluon.executor.environment.runtime.RuntimeContext;
+import com.filipovski.gluon.executor.executor.output.TaskExecutionOutputWriter;
 
 /**
  * Contextual information about an execution. Each task or even an execution within
@@ -10,16 +11,24 @@ import com.filipovski.gluon.executor.environment.runtime.RuntimeContext;
 
 public class ExecutionContext {
 
-    public String taskId;
+    private final String taskId;
 
-    public RuntimeContext runtimeContext;
+    private final TaskExecutionOutputWriter taskOutputWriter;
 
-    public ExecutionContext(String taskId, RuntimeContext runtimeContext) {
+    private final RuntimeContext runtimeContext;
+
+    public ExecutionContext(String taskId, TaskExecutionOutputWriter taskOutputWriter, RuntimeContext runtimeContext) {
         this.taskId = taskId;
+        this.taskOutputWriter = taskOutputWriter;
+        this.runtimeContext = runtimeContext;
     }
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public TaskExecutionOutputWriter getTaskOutputWriter() {
+        return taskOutputWriter;
     }
 
     public RuntimeContext getRuntimeContext() {

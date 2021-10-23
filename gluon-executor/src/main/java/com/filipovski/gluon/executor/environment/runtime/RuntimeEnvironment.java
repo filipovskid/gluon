@@ -2,6 +2,7 @@ package com.filipovski.gluon.executor.environment.runtime;
 
 import com.filipovski.gluon.executor.environment.AbstractEnvironment;
 import com.filipovski.gluon.executor.executor.ExecutorManager;
+import com.filipovski.gluon.executor.executor.output.ExecutionOutputWriter;
 import com.filipovski.gluon.executor.task.Task;
 import com.filipovski.gluon.executor.task.TaskExecutionActions;
 
@@ -17,10 +18,12 @@ public class RuntimeEnvironment extends AbstractEnvironment {
 
     private final RuntimeContext runtimeContext;
 
-    public RuntimeEnvironment(ExecutorManager executorManager, TaskExecutionActions taskExecutionActions) {
+    public RuntimeEnvironment(ExecutorManager executorManager,
+                              TaskExecutionActions taskExecutionActions,
+                              ExecutionOutputWriter executionOutputWriter) {
         this.executorManager = executorManager;
         this.taskExecutionActions = taskExecutionActions;
-        this.runtimeContext = new RuntimeContext(taskExecutionActions, executorManager);
+        this.runtimeContext = new RuntimeContext(taskExecutionActions, executorManager, executionOutputWriter);
     }
 
     @Override

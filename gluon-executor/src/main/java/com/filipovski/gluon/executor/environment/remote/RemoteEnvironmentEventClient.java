@@ -44,4 +44,8 @@ public class RemoteEnvironmentEventClient {
     public TaskStateUpdateStatus updateTaskStatus(TaskStateDetails details) {
         return this.blockingStub.updateTaskState(details);
     }
+
+    public ExecutionOutputHandlingStatus sendExecutionOutput(ExecutionOutputEvent event) {
+        return this.blockingStub.sendExecutionOutput(event);
+    }
 }

@@ -34,10 +34,21 @@ message TaskStateUpdateStatus {
   bool success = 1;
 }
 
+message ExecutionOutputEvent {
+  string taskId = 1;
+  string data = 2;
+}
+
+message ExecutionOutputHandlingStatus {
+
+}
+
 service EnvironmentEventService {
 
   rpc registerEnvironmentDriver(EnvironmentRegistrationDetails) returns (EnvironmentRegistrationStatus) { }
 
   rpc updateTaskState(TaskStateDetails) returns (TaskStateUpdateStatus) { }
+
+  rpc sendExecutionOutput(ExecutionOutputEvent) returns (ExecutionOutputHandlingStatus) { }
 
 }
