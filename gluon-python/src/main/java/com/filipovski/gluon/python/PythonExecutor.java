@@ -20,6 +20,15 @@ import java.nio.file.Path;
 
 /**
  * Python executor capable of executing python code in an interactive python shell.
+ *
+ * <p>This implementation starts a python shell process using the shell implementation
+ * scripts available in the plugin's resources. Communication with this process is
+ * enabled through gRPC, where the shell process acts a server by spinning up a gRPC
+ * server instance listening to a port supplied at startup.</p>
+ *
+ * <p>Python executor delegates execution to python shell through asynchronous calls
+ * to the server. Execution output is streamed back to the executor, where they can
+ * be handled asynchronously through a supplied output handler.</p>
  */
 
 public class PythonExecutor extends AbstractExecutor {
@@ -36,6 +45,8 @@ public class PythonExecutor extends AbstractExecutor {
 
     private PythonShellProcess pythonShellProcess;
 
+    private PythonShellClient pythonShellClient;
+
     public PythonExecutor(ExecutionEnvironment environment, Config config) {
         this.environment = environment;
         this.config = config;
@@ -47,6 +58,7 @@ public class PythonExecutor extends AbstractExecutor {
         try {
             int port = ConnectivityUtil.findAvailablePort();
             pythonShellProcess = shellLauncher.launch(port);
+            pythonShellClient = new PythonShellClient("localhost", port);
         } catch (IOException e) {
             logger.error("Failed to start the python shell process [{}]", e.toString());
         }
@@ -55,10 +67,16 @@ public class PythonExecutor extends AbstractExecutor {
     @Override
     public void execute(ExecutionData data, ExecutionContext executionContext) {
         logger.info("Python executor loaded with [{}]", getClass().getClassLoader().toString());
+        pythonShellClient.execute(data.getCode(), logger::info);
     }
 
     @Override
     public void stop() {
+        try {
+            pythonShellClient.shutdown();
+        } catch (InterruptedException e) {
+            logger.warn("Exception occurred while shutting down python shell client !");
+        }
         pythonShellProcess.stop();
     }
 

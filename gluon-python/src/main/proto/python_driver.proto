@@ -11,6 +11,11 @@ message ExecutionRequest {
   string code = 1;
 }
 
+enum OutputType {
+  TEXT = 0;
+}
+
 message ExecutionResponse {
   string output = 1;
+  OutputType type = 2;
 }

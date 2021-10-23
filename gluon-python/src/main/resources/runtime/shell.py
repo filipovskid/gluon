@@ -116,7 +116,10 @@ class InteractiveShell:
 
         if output:
             self.output_stream.clear()
-            self.result_queue.put(("text", output))
+            self.result_queue.put({
+                'type': 'text/plain',
+                'output': output
+            })
 
     # IPython traceback handling
     # Adapted code from https://github.com/ipython/ipython/blob/master/IPython/core/interactiveshell.py

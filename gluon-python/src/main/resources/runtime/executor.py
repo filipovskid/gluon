@@ -7,13 +7,17 @@ from queue import Queue
 import grpc
 
 from glutils import OutputStreamBuffer, OutputCapture
-from rpc import python_driver_pb2_grpc
+from rpc import python_driver_pb2_grpc, python_driver_pb2
 from rpc.python_driver_pb2_grpc import PythonShellDriverServicer
 from rpc.python_driver_pb2 import ExecutionResponse, ExecutionRequest
 from shell import InteractiveShell
 
 
 class Executor:
+
+    _available_types = {
+        'text/plain': python_driver_pb2.TEXT
+    }
 
     def __init__(self):
         self.output_buffer = OutputStreamBuffer(sys.stdout)
@@ -29,8 +33,13 @@ class Executor:
         self.shell.flush_shell_output()
 
     def get(self):
-        output = self.result_queue.get()
-        return ExecutionResponse(output=output[1])
+        result = self.result_queue.get()
+        output_type, output = result['type'], result['output']
+
+        if output_type in self._available_types:
+            return ExecutionResponse(output=output, type=self._available_types[output_type])
+        else:
+            return ExecutionResponse(output=output, type=python_driver_pb2.TEXT)
 
     def flush(self):
         self.shell.flush_shell_output()
@@ -73,6 +82,7 @@ class ExecutorApp(PythonShellDriverServicer):
         return f'[::]:{self.port}'
 
     def execute(self, request: ExecutionRequest, context):
+        print(request)
         execution_thread = threading.Thread(target=self.executor.execute, args=(request.code,))
 
         with self._lock:
