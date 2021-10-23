@@ -1,6 +1,8 @@
 package com.filipovski.gluon.executor.executor.output;
 
+import com.filipovski.gluon.executor.util.InstantConverter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.time.Instant;
 
@@ -44,7 +46,9 @@ public class DisplayData implements ExecutionOutputData {
 
     @Override
     public String serialize() {
-        Gson gson = new Gson();
+        Gson gson =  new GsonBuilder()
+                .registerTypeAdapter(Instant.class, new InstantConverter())
+                .create();
 
         return gson.toJson(this);
     }
