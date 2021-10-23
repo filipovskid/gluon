@@ -15,6 +15,14 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+/**
+ * gRPC client for executing code within and handling output from python shell.
+ *
+ * <p>This implementation ensures that the shell server is ready before dispatching
+ * a call. Additionally, it detaches from any context that might be lingering from
+ * previous gRPC calls that resulted in calling {@link #execute}.</p>
+ */
+
 public class PythonShellClient {
 
     private final Logger logger = LogManager.getLogger(PythonShellClient.class);
