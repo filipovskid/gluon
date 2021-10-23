@@ -12,6 +12,24 @@ import static java.util.Map.entry;
 
 import java.util.function.BiFunction;
 
+/**
+ * {@link ExecutorProvider} for the python executor plugin.
+ *
+ * <p>To enable locating and loading this implementation from the plugin, given a
+ * Service Provider Interface (SPI), a file with the following characteristics is
+ * created within the resources directory:
+ *
+ * File name:
+ *
+ *      META-INF/services/com.filipovski.gluon.executor.executor.ExecutorProvider
+ *
+ * This file contains a single line identifying this executor provider:
+ *
+ *      com.filipovski.gluon.python.PythonExecutorProvider
+ *
+ * </p>
+ */
+
 public class PythonExecutorProvider implements ExecutorProvider {
 
     Map<String, BiFunction<ExecutionEnvironment, Config, Executor>> executorFactories = Map.ofEntries(
