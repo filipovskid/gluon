@@ -42,7 +42,11 @@ public class RuntimeExecutorManager implements ExecutorManager {
     @Override
     public Optional<Executor> obtainExecutor(String executorIdentifier, ExecutionEnvironment environment) {
         Executor executor = environmentExecutors.computeIfAbsent(executorIdentifier,
-                executorId -> executorLoader.createExecutor(executorIdentifier, environment).orElse(null));
+                executorId -> executorLoader.createExecutor(executorIdentifier, environment)
+                        .map(e -> {
+                            e.start();
+                            return e;
+                        }).orElse(null));
 
         return Optional.ofNullable(executor);
     }
