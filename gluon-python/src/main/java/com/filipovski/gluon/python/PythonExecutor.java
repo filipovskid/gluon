@@ -51,7 +51,7 @@ public class PythonExecutor extends AbstractExecutor {
     public PythonExecutor(ExecutionEnvironment environment, Config config) {
         this.environment = environment;
         this.config = config;
-        this.shellLauncher = new PythonShellLauncher();
+        this.shellLauncher = new PythonShellLauncher(config.getString(PythonConfigOptions.PYTHON_INTERPRETER));
     }
 
     @Override
@@ -88,6 +88,12 @@ public class PythonExecutor extends AbstractExecutor {
 
         private final Logger logger = LogManager.getLogger(PythonShellLauncher.class);
 
+        private final String pythonInterpreter;
+
+        public PythonShellLauncher(String pythonInterpreter) {
+            this.pythonInterpreter = pythonInterpreter;
+        }
+
         //  TODO: Script arguments
         public PythonShellProcess launch(int port) throws IOException {
             ExecuteWatchdog watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
@@ -98,7 +104,7 @@ public class PythonExecutor extends AbstractExecutor {
             executor.setStreamHandler(new PumpStreamHandler(null, null, null));
             String scriptPath = preparePythonShellScript().toString();
 
-            CommandLine cmdLine = new CommandLine("python3");
+            CommandLine cmdLine = new CommandLine(pythonInterpreter);
             cmdLine.addArgument(scriptPath);
             cmdLine.addArgument("--port");
             cmdLine.addArgument(String.valueOf(port)); // Fixed port for testing purposes. Replace with port
