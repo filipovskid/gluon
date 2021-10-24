@@ -4,12 +4,14 @@ import com.filipovski.gluon.core.job.CellExecutionJob;
 import com.filipovski.gluon.core.job.Job;
 import com.filipovski.gluon.core.job.JobRepository;
 import com.filipovski.gluon.core.job.events.CellExecutionJobCreatedEvent;
+import com.filipovski.gluon.core.job.events.CellExecutionJobStateEvent;
 import com.filipovski.gluon.core.notebook.events.CellExecutionStartedEvent;
-import org.jetbrains.annotations.NotNull;
+import com.filipovski.gluon.core.notebook.events.NotebookCellStateUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 // TODO: Implement a service that can generate execution session IDs
@@ -27,7 +29,7 @@ public class CellExecutionManager {
     }
 
     @EventListener
-    public void onCellExecutionStarted(@NotNull CellExecutionStartedEvent event) {
+    public void onCellExecutionStarted(@NonNull CellExecutionStartedEvent event) {
         // TODO: Create a job that knows about the entity being executed.
 
         Job job = new CellExecutionJob(
@@ -48,5 +50,23 @@ public class CellExecutionManager {
         eventPublisher.publishEvent(jobCreatedEvent);
     }
 
+    @EventListener
+    public void onCellExecutionStateChange(@NonNull CellExecutionJobStateEvent event) {
+        CellExecutionJob job = this.jobRepository.findById(event.getJobId())
+                .map(j -> (CellExecutionJob) j)
+                .orElseThrow(() -> handleJobNotFound(event.getJobId()));
+        NotebookCellStateUpdateEvent stateUpdateEvent = NotebookCellStateUpdateEvent.from(
+                job.getNotebookId(),
+                job.getCellId(),
+                event.getStatus(),
+                event.occuredOn()
+        );
 
+        eventPublisher.publishEvent(stateUpdateEvent);
+    }
+
+    private RuntimeException handleJobNotFound(String jobId) {
+        logger.warn("Cell execution job [{}] has not been found!", jobId);
+        return new RuntimeException(String.format("Cell execution job %s not found!", jobId));
+    }
 }

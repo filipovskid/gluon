@@ -4,15 +4,14 @@ import com.filipovski.common.domain.AbstractEntity;
 import com.filipovski.gluon.core.notebook.events.CellExecutionStartedEvent;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.Objects;
 
 // TODO: Track cell execution lifecycle.
 // TODO: Should have a service that knows the isolation level of a cell execution.
 //       This service should be able to create a sessionId which identifies the
 //       environment within which the code will be executed.
+// TODO: State transition event for frontend.
 
 @Getter
 @Entity(name = "notebook_cells")
@@ -26,6 +25,9 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
     private String code;
 
     private Double position;
+
+    @Enumerated(EnumType.STRING)
+    private NotebookCellStatus status;
 
     @ManyToOne
     private Notebook notebook;
@@ -43,12 +45,19 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.language = language;
         this.code = code;
         this.position = position;
+        this.status = NotebookCellStatus.CREATED;
     }
 
     public void run() {
-        // TODO: Track notebook cell's execution state. Ensure proper state transition.
-
+        transitionState(NotebookCellStatus.PENDING);
         registerEvent(CellExecutionStartedEvent.from(this));
+    }
+
+    public boolean transitionState(NotebookCellStatus status) {
+        // TODO: Check whether all transitions are possible. Current setup does not prevent any transitions.
+        this.status = status;
+
+        return true;
     }
 
     public String getId() {

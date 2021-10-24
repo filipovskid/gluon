@@ -2,10 +2,12 @@ package com.filipovski.gluon.core.job;
 
 import com.filipovski.gluon.core.notebook.NotebookId;
 import com.filipovski.gluon.core.notebook.NotebookCellId;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+@Getter
 @NoArgsConstructor
 @Entity
 public class CellExecutionJob extends Job {
