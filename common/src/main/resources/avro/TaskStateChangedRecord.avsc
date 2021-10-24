@@ -1,0 +1,18 @@
+{
+  "namespace": "com.filipovski.gluon.common.integration.avro",
+  "type": "record",
+  "name": "TaskStateChangedRecord",
+  "fields": [
+    { "name": "task_id", "type": "string" },
+    { "name": "result",  "type": "string", "default": "" },
+    {
+      "name": "status",
+      "type": {
+        "name": "TaskStatus",
+        "type": "enum",
+        "symbols": ["CREATED", "PENDING", "RUNNING", "CANCELLING", "COMPLETED", "CANCELED", "FAILED"]
+      }
+    },
+    { "name": "timestamp", "type": "long" }
+  ]
+}
