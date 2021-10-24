@@ -1,5 +1,8 @@
 FROM ubuntu:18.04
 
+# Updates system
+# Installs java 15 for running the environment driver
+# Installs python 3.8 and virtualenv for python executor
 RUN apt-get update && \
   apt-get install --yes \
     gnupg \
@@ -17,7 +20,27 @@ RUN apt-get update && \
   apt-get install --yes zulu15-jdk && \
   apt-get clean
 
-COPY jars /jars
+# Prepare the environment used by python executor
+RUN virtualenv --python python3.8 --system-site-packages /gluon/python3
+
+# Install packages used by python executor
+# These reflect the packages used during development
+RUN /gluon/python3/bin/pip install \
+    grpcio==1.39.0 \
+    protobuf==3.17.3 \
+    ipython==7.28.0 \
+    numpy==1.21.3 \
+    pandas==1.3.4 \
+    matplotlib==3.4.3
+
+# Prepare environment driver jar
+COPY driver /gluon/driver
+
+# Provide executor plugin jars and corresponding configurations
+# The executor plugins directory structure conforms to the directory
+# plugin finder's strategy for locating plugins
+COPY executors /gluon/executors
+
 COPY entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
