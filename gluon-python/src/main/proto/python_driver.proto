@@ -3,14 +3,19 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.filipovski.gluon.python.proto";
 
-service ExecutorDriver {
-  rpc execute (ExecutionRequest) returns (ExecutionResponse) {}
+service PythonShellDriver {
+  rpc execute (ExecutionRequest) returns (stream ExecutionResponse) {}
 }
 
 message ExecutionRequest {
   string code = 1;
 }
 
+enum OutputType {
+  TEXT = 0;
+}
+
 message ExecutionResponse {
   string output = 1;
+  OutputType type = 2;
 }

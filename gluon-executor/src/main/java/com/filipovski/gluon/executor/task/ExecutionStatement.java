@@ -6,6 +6,9 @@ import com.filipovski.gluon.executor.executor.ExecutionContext;
 import com.filipovski.gluon.executor.executor.ExecutionData;
 import com.filipovski.gluon.executor.executor.Executor;
 import com.filipovski.gluon.executor.executor.ExecutorManager;
+import com.filipovski.gluon.executor.executor.output.ExecutionOutput;
+import com.filipovski.gluon.executor.executor.output.ExecutionOutputWriter;
+import com.filipovski.gluon.executor.executor.output.TaskExecutionOutputWriter;
 import com.filipovski.gluon.executor.task.descriptors.ExecutionStatementDescriptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +33,8 @@ public class ExecutionStatement extends Task {
 
     private final ExecutorManager executorManager;
 
+    private final ExecutionOutputWriter executionOutputWriter;
+
     private Executor executor;
 
     private ExecutionStatement(String taskId,
@@ -44,6 +49,7 @@ public class ExecutionStatement extends Task {
         this.runtimeContext = environment.getRuntimeContext();
         this.taskExecutionActions = runtimeContext.getTaskExecutionActions();
         this.executorManager = runtimeContext.getExecutorManager();
+        this.executionOutputWriter = runtimeContext.getExecutionOutputWriter();
     }
 
     @Override
@@ -77,7 +83,12 @@ public class ExecutionStatement extends Task {
     }
 
     private ExecutionContext createExecutionContext() {
-        return new ExecutionContext(getId(), runtimeContext);
+        TaskExecutionOutputWriter outputWriter = (executionOutputData) -> {
+            ExecutionOutput executionOutput = new ExecutionOutput(getId(), executionOutputData);
+            executionOutputWriter.write(executionOutput);
+        };
+
+        return new ExecutionContext(getId(), outputWriter, runtimeContext);
     }
 
     private RuntimeException handleExecutorNotFound() {

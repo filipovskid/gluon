@@ -4,6 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.filipovski.gluon.executor.configuration.EnvironmentConfigOptions;
 import com.filipovski.gluon.executor.environment.runtime.RuntimeEnvironment;
+import com.filipovski.gluon.executor.executor.output.ExecutionOutputWriter;
 import com.filipovski.gluon.executor.executor.runtime.ExecutorLoader;
 import com.filipovski.gluon.executor.executor.runtime.RuntimeExecutorManager;
 import com.filipovski.gluon.executor.plugin.DirectoryPluginFinder;
@@ -129,8 +130,9 @@ public class ExecutionEnvironmentDriver
     private RuntimeEnvironment createRuntimeEnvironment() {
         RuntimeExecutorManager executorManager = new RuntimeExecutorManager(executorLoader);
         TaskExecutionActions taskExecutionActions = new TaskExecutionActions(client);
+        ExecutionOutputWriter executionOutputWriter = new ExecutionOutputWriter(client);
 
-        return new RuntimeEnvironment(executorManager, taskExecutionActions);
+        return new RuntimeEnvironment(executorManager, taskExecutionActions, executionOutputWriter);
     }
 
     @Override

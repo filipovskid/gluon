@@ -35,3 +35,6 @@ build/
 ### System ###
 **/.DS_Store
 
+### Docker Image Build ###
+gluon-docker/container-images/driver/
+gluon-docker/container-images/executors/

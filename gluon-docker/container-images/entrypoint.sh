@@ -9,7 +9,7 @@ CLASS_TO_RUN=com.filipovski.gluon.executor.environment.remote.ExecutionEnvironme
 
 CMD=(
   java -cp
-  /jars/gluon-executor-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+  /gluon/driver/gluon-environment-driver--0.0.1-SNAPSHOT.jar
   ${CLASS_TO_RUN}
   ${@}
 )
