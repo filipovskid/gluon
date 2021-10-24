@@ -2,6 +2,7 @@ package com.filipovski.gluonserver.environment.remote;
 
 import com.filipovski.gluon.executor.proto.*;
 import com.filipovski.gluonserver.environment.EnvironmentManager;
+import com.filipovski.gluonserver.task.events.ExecutionOutputArrivedEvent;
 import com.filipovski.gluonserver.task.events.TaskStateChangedEvent;
 import io.grpc.stub.StreamObserver;
 
@@ -64,6 +65,13 @@ public class RemoteEnvironmentEventServer extends EnvironmentEventServiceGrpc.En
     @Override
     public void sendExecutionOutput(ExecutionOutputEvent request, StreamObserver<ExecutionOutputHandlingStatus> responseObserver) {
         logger.info("Execution output event arrived: [{}]", request);
+
+        ExecutionOutputArrivedEvent event = ExecutionOutputArrivedEvent.from(
+                request.getTaskId(),
+                request.getData(),
+                Instant.now()
+        );
+        publisher.publishEvent(event);
 
         ExecutionOutputHandlingStatus status = ExecutionOutputHandlingStatus.newBuilder().build();
         responseObserver.onNext(status);
