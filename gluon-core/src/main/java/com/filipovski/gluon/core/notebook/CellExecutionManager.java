@@ -4,8 +4,10 @@ import com.filipovski.gluon.core.job.CellExecutionJob;
 import com.filipovski.gluon.core.job.Job;
 import com.filipovski.gluon.core.job.JobRepository;
 import com.filipovski.gluon.core.job.events.CellExecutionJobCreatedEvent;
+import com.filipovski.gluon.core.job.events.CellExecutionJobOutputEvent;
 import com.filipovski.gluon.core.job.events.CellExecutionJobStateEvent;
 import com.filipovski.gluon.core.notebook.events.CellExecutionStartedEvent;
+import com.filipovski.gluon.core.notebook.events.NotebookCellOutputEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookCellStateUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 // TODO: Implement a service that can generate execution session IDs
+// TODO: Each cell status or cell output integration event generates two local events.
+//       There might be no need for such complexity - utilize notebook service instead
+//       of pushing events.
 
 @Service
 public class CellExecutionManager {
@@ -63,6 +68,21 @@ public class CellExecutionManager {
         );
 
         eventPublisher.publishEvent(stateUpdateEvent);
+    }
+
+    @EventListener
+    public void onCellExecutionOutputArrival(@NonNull CellExecutionJobOutputEvent event) {
+        CellExecutionJob job = this.jobRepository.findById(event.getJobId())
+                .map(j -> (CellExecutionJob) j)
+                .orElseThrow(() -> handleJobNotFound(event.getJobId()));
+
+        NotebookCellOutputEvent outputEvent = NotebookCellOutputEvent.from(
+                job.getNotebookId(),
+                job.getCellId(),
+                event.getData(),
+                event.getOccuredOn()
+        );
+        eventPublisher.publishEvent(outputEvent);
     }
 
     private RuntimeException handleJobNotFound(String jobId) {

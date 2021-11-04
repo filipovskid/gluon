@@ -4,6 +4,7 @@ import com.filipovski.gluon.core.notebook.dto.AddNotebookCellRequest;
 import com.filipovski.gluon.core.notebook.dto.CellDetails;
 import com.filipovski.gluon.core.notebook.dto.CreateNotebookRequest;
 import com.filipovski.gluon.core.notebook.dto.NotebookData;
+import com.filipovski.gluon.core.notebook.events.NotebookCellOutputEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookCellStateUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,12 +77,20 @@ public class NotebookService {
 
     @EventListener
     public void onNotebookCellStateUpdate(NotebookCellStateUpdateEvent event) throws Exception {
-        NotebookCell cell = notebookCellRepository.findNotebookCell(
-                event.getNotebookId(),
-                event.getCellId()
-        ).orElseThrow(() -> new Exception("Notebook cell could not be found!"));
-
+        NotebookCell cell = findNotebookCell(event.getNotebookId(), event.getCellId());
         cell.transitionState(event.getStatus());
         notebookCellRepository.save(cell);
+    }
+
+    @EventListener
+    public void onNotebookCellOutputArrival(NotebookCellOutputEvent event) throws Exception {
+        NotebookCell cell = findNotebookCell(event.getNotebookId(), event.getCellId());
+        cell.appendOutput(event.getData());
+        notebookCellRepository.save(cell);
+    }
+
+    private NotebookCell findNotebookCell(NotebookId notebookId, NotebookCellId cellId) throws Exception {
+        return notebookCellRepository.findNotebookCell(notebookId, cellId)
+                .orElseThrow(() -> new Exception("Notebook cell could not be found!"));
     }
 }

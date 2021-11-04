@@ -2,9 +2,11 @@ package com.filipovski.gluon.core.notebook;
 
 import com.filipovski.common.domain.AbstractEntity;
 import com.filipovski.gluon.core.notebook.events.CellExecutionStartedEvent;
+import com.filipovski.gluon.core.notebook.utils.NotebookCellOutputConverter;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.Objects;
 
 // TODO: Track cell execution lifecycle.
@@ -29,6 +31,10 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
     @Enumerated(EnumType.STRING)
     private NotebookCellStatus status;
 
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter= NotebookCellOutputConverter.class)
+    private NotebookCellOutput output;
+
     @ManyToOne
     private Notebook notebook;
 
@@ -46,6 +52,7 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.code = code;
         this.position = position;
         this.status = NotebookCellStatus.CREATED;
+        this.output = NotebookCellOutput.from(Collections.emptyList());
     }
 
     public void run() {
@@ -58,6 +65,10 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.status = status;
 
         return true;
+    }
+
+    public void appendOutput(String data) {
+        this.output.appendOutput(data);
     }
 
     public String getId() {
