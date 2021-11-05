@@ -5,9 +5,9 @@ import com.filipovski.gluon.core.notebook.dto.CellDetails;
 import com.filipovski.gluon.core.notebook.dto.CreateNotebookRequest;
 import com.filipovski.gluon.core.notebook.dto.NotebookData;
 import com.filipovski.gluon.core.notebook.environment.SessionProvider;
+import com.filipovski.gluon.core.notebook.events.EnvironmentStatusChangedEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookCellOutputEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookCellStateUpdateEvent;
-import com.filipovski.gluon.core.notebook.events.NotebookStartingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -95,6 +95,16 @@ public class NotebookService {
 
         cell.run();
         notebookCellRepository.save(cell);
+    }
+
+    @EventListener
+    public void onNotebookEnvironmentStatusChange(EnvironmentStatusChangedEvent event) throws Exception {
+        NotebookId notebookId = sessionProvider.getNotebookIdFromSession(event.getSessionId());
+        Notebook notebook = notebookRepository.findById(notebookId)
+                .orElseThrow(() -> new Exception("Notebook not found"));
+
+        notebook.transitionState(event.getStatus());
+        notebookRepository.save(notebook);
     }
 
     @EventListener
