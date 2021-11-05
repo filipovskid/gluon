@@ -40,6 +40,11 @@ public class DockerResourceManagerBackend implements ResourceManagerBackend {
 
         resourceRequests.put(environmentDriverSpec.getEnvironmentId(), resourceRequest);
         DockerContainer container = client.startContainer(configuredContainer);
+        // TODO: Container starting isn't async, so this can happen after its start.
+        resourceRequest.complete(new DockerWorkerNode(environmentDriverSpec.getEnvironmentId(),
+                envDriverContainerSpec.getEnvironmentHost(),
+                envDriverContainerSpec.getEnvironmentPort())
+        );
 
         return resourceRequest;
     }
