@@ -38,7 +38,7 @@ public class CellExecutionManager {
         // TODO: Create a job that knows about the entity being executed.
 
         Job job = new CellExecutionJob(
-                "test-session-id",
+                event.getSessionId(),
                 event.getNotebookId(),
                 event.getCellId()
         );
@@ -50,7 +50,8 @@ public class CellExecutionManager {
                 job.getSessionId(),
                 event.getLanguage(),
                 event.getCode(),
-                event.getStartTime()
+                event.getStartTime(),
+                event.getOccuredOn()
         );
         eventPublisher.publishEvent(jobCreatedEvent);
     }

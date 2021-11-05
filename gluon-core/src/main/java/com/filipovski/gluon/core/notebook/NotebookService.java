@@ -45,8 +45,7 @@ public class NotebookService {
     }
 
     public NotebookData getNotebook(UUID notebookId) throws Exception {
-        Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
-                .orElseThrow(() -> new Exception("Notebook not found"));
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         List<NotebookCell> cells = notebookCellRepository.findAllByNotebookId(notebook.id());
 
         return NotebookData.from(notebook, cells);
@@ -54,8 +53,7 @@ public class NotebookService {
 
     public NotebookData startNotebook(UUID notebookId) throws Exception {
         // TODO: Probably the logic needs to be in a domain service, but I will take a shortcut
-        Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
-                .orElseThrow(() -> new Exception("Notebook not found"));
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         List<NotebookCell> cells = notebookCellRepository.findAllByNotebookId(notebook.id());
         String sessionId = sessionProvider.obtainSessionId(notebook);
 
@@ -66,8 +64,7 @@ public class NotebookService {
     }
 
     public CellDetails addNotebookCell(UUID notebookId, AddNotebookCellRequest request) throws Exception {
-        Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
-                .orElseThrow(() -> new Exception("Notebook not found"));
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         NotebookCell notebookCell = NotebookCell.from(
                 notebook,
                 notebook.getLanguage(),
@@ -81,20 +78,22 @@ public class NotebookService {
     }
 
     public void removeNotebookCell(UUID notebookId, UUID notebookCellId) throws Exception {
-        Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
-                .orElseThrow(() -> new Exception("Notebook not found"));
-
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         notebookCellRepository.deleteById(NotebookCellId.from(notebookCellId.toString()));
     }
 
-    public void runNotebookCell(UUID notebookId, UUID notebookCellId) throws Exception {
-        NotebookCell cell = notebookCellRepository.findNotebookCell(
+    public CellDetails runNotebookCell(UUID notebookId, UUID notebookCellId) throws Exception {
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
+        NotebookCell cell = findNotebookCell(
                 NotebookId.from(notebookId.toString()),
                 NotebookCellId.from(notebookCellId.toString())
-        ).orElseThrow(() -> new Exception("Notebook cell could not be found"));
+        );
+        String sessionId = sessionProvider.obtainSessionId(notebook);
 
-        cell.run();
+        cell.run(sessionId);
         notebookCellRepository.save(cell);
+
+        return CellDetails.from(cell);
     }
 
     @EventListener
@@ -124,5 +123,10 @@ public class NotebookService {
     private NotebookCell findNotebookCell(NotebookId notebookId, NotebookCellId cellId) throws Exception {
         return notebookCellRepository.findNotebookCell(notebookId, cellId)
                 .orElseThrow(() -> new Exception("Notebook cell could not be found!"));
+    }
+
+    private Notebook findNotebook(NotebookId notebookId) throws Exception {
+        return notebookRepository.findById(notebookId)
+                .orElseThrow(() -> new Exception("Notebook could not be found!"));
     }
 }

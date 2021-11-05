@@ -48,9 +48,9 @@ public class NotebookController {
         notebookService.removeNotebookCell(notebookId, notebookCellId);
     }
 
-    @GetMapping("/{notebook-id}/cell/{cell-id}/run")
-    public void runNotebookCell(@PathVariable("notebook-id") UUID notebookId,
+    @PostMapping("/{notebook-id}/cell/{cell-id}/run")
+    public ResponseEntity<CellDetails> runNotebookCell(@PathVariable("notebook-id") UUID notebookId,
                                 @PathVariable("cell-id") UUID notebookCellId) throws Exception {
-        notebookService.runNotebookCell(notebookId, notebookCellId);
+        return ResponseEntity.ok(notebookService.runNotebookCell(notebookId, notebookCellId));
     }
 }

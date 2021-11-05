@@ -35,6 +35,10 @@ public class Notebook extends AbstractEntity<NotebookId> {
         registerEvent(NotebookStartingEvent.from(this, sessionId));
     }
 
+    public boolean isStarted() {
+        return status == NotebookStatus.STARTED;
+    }
+
     public boolean transitionState(NotebookStatus status) {
         // Can transition to any state
         this.status = status;

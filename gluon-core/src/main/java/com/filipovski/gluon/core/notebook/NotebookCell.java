@@ -55,9 +55,13 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.output = NotebookCellOutput.from(Collections.emptyList());
     }
 
-    public void run() {
+    public void run(String sessionId) {
+        if (!notebook.isStarted())
+            return;
+        
         transitionState(NotebookCellStatus.PENDING);
-        registerEvent(CellExecutionStartedEvent.from(this));
+        this.output = NotebookCellOutput.from(Collections.emptyList());
+        registerEvent(CellExecutionStartedEvent.from(this, sessionId));
     }
 
     public boolean transitionState(NotebookCellStatus status) {
