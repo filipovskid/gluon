@@ -30,6 +30,11 @@ public class NotebookController {
         return ResponseEntity.ok(notebookService.getNotebook(notebookId));
     }
 
+    @PostMapping("/{notebook-id}/start")
+    public ResponseEntity<NotebookData> startNotebook(@PathVariable("notebook-id") UUID notebookId) throws Exception {
+        return ResponseEntity.ok(notebookService.startNotebook(notebookId));
+    }
+
     @PostMapping("/{notebook-id}/cell")
     public ResponseEntity<CellDetails> addNotebookCell(@PathVariable("notebook-id") UUID notebookId,
                                                        @RequestBody AddNotebookCellRequest request) throws Exception {

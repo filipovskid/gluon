@@ -4,10 +4,13 @@ import com.filipovski.gluon.core.notebook.dto.AddNotebookCellRequest;
 import com.filipovski.gluon.core.notebook.dto.CellDetails;
 import com.filipovski.gluon.core.notebook.dto.CreateNotebookRequest;
 import com.filipovski.gluon.core.notebook.dto.NotebookData;
+import com.filipovski.gluon.core.notebook.environment.SessionProvider;
 import com.filipovski.gluon.core.notebook.events.NotebookCellOutputEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookCellStateUpdateEvent;
+import com.filipovski.gluon.core.notebook.events.NotebookStartingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +20,20 @@ import java.util.UUID;
 @Service
 public class NotebookService {
 
+    private final Logger logger = LoggerFactory.getLogger(NotebookService.class);
+    private final ApplicationEventPublisher publisher;
     private final NotebookRepository notebookRepository;
     private final NotebookCellRepository notebookCellRepository;
-    private final Logger logger = LoggerFactory.getLogger(NotebookService.class);
+    private final SessionProvider sessionProvider;
 
-    public NotebookService(NotebookRepository notebookRepository,
-                           NotebookCellRepository notebookCellRepository) {
+    public NotebookService(ApplicationEventPublisher publisher,
+                           NotebookRepository notebookRepository,
+                           NotebookCellRepository notebookCellRepository,
+                           SessionProvider sessionProvider) {
+        this.publisher = publisher;
         this.notebookRepository = notebookRepository;
         this.notebookCellRepository = notebookCellRepository;
+        this.sessionProvider = sessionProvider;
     }
 
     public Notebook createNotebook(CreateNotebookRequest request) {
@@ -38,7 +47,20 @@ public class NotebookService {
     public NotebookData getNotebook(UUID notebookId) throws Exception {
         Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
                 .orElseThrow(() -> new Exception("Notebook not found"));
-        List<NotebookCell> cells = notebookCellRepository.findAllByNotebookId(NotebookId.from(notebookId.toString()));
+        List<NotebookCell> cells = notebookCellRepository.findAllByNotebookId(notebook.id());
+
+        return NotebookData.from(notebook, cells);
+    }
+
+    public NotebookData startNotebook(UUID notebookId) throws Exception {
+        // TODO: Probably the logic needs to be in a domain service, but I will take a shortcut
+        Notebook notebook = notebookRepository.findById(NotebookId.from(notebookId.toString()))
+                .orElseThrow(() -> new Exception("Notebook not found"));
+        List<NotebookCell> cells = notebookCellRepository.findAllByNotebookId(notebook.id());
+        String sessionId = sessionProvider.obtainSessionId(notebook);
+
+        notebook.start(sessionId);
+        notebookRepository.save(notebook);
 
         return NotebookData.from(notebook, cells);
     }

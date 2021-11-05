@@ -1,9 +1,12 @@
 package com.filipovski.gluon.core.notebook;
 
 import com.filipovski.common.domain.AbstractEntity;
+import com.filipovski.gluon.core.notebook.events.NotebookStartingEvent;
 import lombok.Getter;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.Objects;
 
 @Getter
@@ -14,6 +17,9 @@ public class Notebook extends AbstractEntity<NotebookId> {
 
     private String language;
 
+    @Enumerated(EnumType.STRING)
+    private NotebookStatus status;
+
     protected Notebook() { }
 
     private Notebook(String name, String language) {
@@ -21,6 +27,19 @@ public class Notebook extends AbstractEntity<NotebookId> {
 
         this.name = name;
         this.language = language;
+        this.status = NotebookStatus.STOPPED;
+    }
+
+    public void start(String sessionId) {
+        transitionState(NotebookStatus.STARTING);
+        registerEvent(NotebookStartingEvent.from(this, sessionId));
+    }
+
+    public boolean transitionState(NotebookStatus status) {
+        // Can transition to any state
+        this.status = status;
+
+        return true;
     }
 
     public String getId() {
