@@ -14,11 +14,18 @@ public class KafkaConfig {
     @Value("${kafka.execution-outputs.topic}")
     private String executionOutputTopic;
 
+    @Value("${kafka.environment-status.topic}")
+    private String environmentStatusTopic;
+
     public String getTaskStatesTopic() {
         return taskStatesTopic;
     }
 
     public String getExecutionOutputTopic() {
         return executionOutputTopic;
+    }
+
+    public String getEnvironmentStatusTopic() {
+        return environmentStatusTopic;
     }
 }
