@@ -4,14 +4,19 @@ import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
 import com.filipovski.gluon.executor.resourcemanager.ResourceManager;
 import com.filipovski.gluon.executor.resourcemanager.WorkerAllocationResponse;
 import com.filipovski.gluon.executor.resourcemanager.WorkerNodeSpec;
+import com.filipovski.gluonserver.environment.events.EnvironmentStatusChangedEvent;
 import com.filipovski.gluonserver.environment.remote.EnvironmentRegistrationRequest;
 import com.filipovski.gluonserver.environment.remote.RemoteEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * This is where {@link ExecutionEnvironment}s are created and associated with
@@ -23,34 +28,68 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class EnvironmentManager {
 
-    // Mappings sessionId -> execution environment. This might be subject to a change
-    // by introducing some sort of state/session and a corresponding store.
-    private Map<String, ExecutionEnvironment> sessionEnvironments;
-
-    private Map<String, EnvironmentRegistration> pendingEnvironmentSessionRegistrations;
+    private final Logger logger = LoggerFactory.getLogger(EnvironmentManager.class);
 
     private final ResourceManager resourceManager;
 
-    public EnvironmentManager(ResourceManager resourceManager) {
+    private final ApplicationEventPublisher publisher;
+
+    // Mappings sessionId -> execution environment. This might be subject to a change
+    // by introducing some sort of state/session and a corresponding store.
+    private ConcurrentMap<String, ExecutionEnvironment> sessionEnvironments;
+
+    private ConcurrentMap<String, EnvironmentRegistration> pendingEnvironmentSessionRegistrations;
+
+
+
+    public EnvironmentManager(ResourceManager resourceManager,
+                              ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
         this.resourceManager = resourceManager;
-        sessionEnvironments = new ConcurrentHashMap<>();
-        pendingEnvironmentSessionRegistrations = new ConcurrentHashMap<>();
+        this.sessionEnvironments = new ConcurrentHashMap<>();
+        this.pendingEnvironmentSessionRegistrations = new ConcurrentHashMap<>();
     }
 
     public void createSessionEnvironment(String sessionId) {
         WorkerNodeSpec workerNodeSpec = new WorkerNodeSpec(sessionId);
 
-        CompletableFuture<WorkerAllocationResponse> workerRequestFuture =
-                resourceManager.startWorkerNode(workerNodeSpec);
-
-        EnvironmentRegistration environmentRegistration = new EnvironmentRegistration(workerRequestFuture);
-        pendingEnvironmentSessionRegistrations.put(sessionId, environmentRegistration);
-
-        workerRequestFuture.handle((allocationResponse, throwable) -> {
-            if (throwable != null) {
-                pendingEnvironmentSessionRegistrations.remove(sessionId);
+        pendingEnvironmentSessionRegistrations.computeIfAbsent(sessionId, sessionIdKey -> {
+            if (sessionEnvironments.containsKey(sessionId)) {
+                updateEnvironmentStatus(
+                        sessionId,
+                        EnvironmentStatus.STARTED,
+                        "Environment has been already been started!"
+                );
+                return null;
             }
-            return null;
+
+            CompletableFuture<WorkerAllocationResponse> workerRequestFuture =
+                    resourceManager.startWorkerNode(workerNodeSpec);
+
+            workerRequestFuture.handle((allocationResponse, throwable) -> {
+                if (throwable != null || !allocationResponse.isSuccessful()) {
+                    logger.warn("Environment [{}] resource allocation failed. [{}] [{}]",
+                            sessionIdKey, allocationResponse,  throwable);
+                    pendingEnvironmentSessionRegistrations.remove(sessionId);
+                    updateEnvironmentStatus(
+                            sessionIdKey,
+                            EnvironmentStatus.FAILED,
+                            "Environment resource allocation failed!"
+                    );
+                }
+
+                logger.info("Environment [{}] resource allocation has completed successfully. [{}]",
+                        sessionIdKey, allocationResponse);
+                updateEnvironmentStatus(
+                        sessionIdKey,
+                        EnvironmentStatus.STARTING,
+                        "Environment resource allocation has completed successfully!"
+                );
+
+                return null;
+            });
+
+            return new EnvironmentRegistration(workerRequestFuture);
         });
     }
 
@@ -61,12 +100,30 @@ public class EnvironmentManager {
     }
 
     public void onExecutionEnvironmentRegistration(EnvironmentRegistrationRequest registrationRequest) {
-        sessionEnvironments.computeIfAbsent(registrationRequest.getSessionId(), (key) -> {
+        sessionEnvironments.computeIfAbsent(registrationRequest.getSessionId(), (sessionId) -> {
+            pendingEnvironmentSessionRegistrations.remove(registrationRequest.getSessionId());
             RemoteEnvironment remoteEnvironment = new RemoteEnvironment(registrationRequest.getHost(),
                     registrationRequest.getPort());
             remoteEnvironment.start();
 
+            logger.info("Environment [{}] has been successfully started and registered.", sessionId);
+            updateEnvironmentStatus(
+                    sessionId,
+                    EnvironmentStatus.STARTED,
+                    "Environment has been successfully started and registered!"
+            );
+
             return remoteEnvironment;
         });
+    }
+
+    private void updateEnvironmentStatus(String sessionId, EnvironmentStatus status) {
+        this.updateEnvironmentStatus(sessionId, status, "Empty message.");
+    }
+
+    private void updateEnvironmentStatus(String sessionId, EnvironmentStatus status, String message) {
+        EnvironmentStatusChangedEvent event =
+                EnvironmentStatusChangedEvent.from(sessionId, status, message, Instant.now());
+        publisher.publishEvent(event);
     }
 }

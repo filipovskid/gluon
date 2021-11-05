@@ -21,6 +21,7 @@ public class EnvironmentRegistration {
         this.workerAllocationFuture = workerAllocationFuture;
         this.registrationStartTime = registrationStartTime;
     }
+
     public CompletableFuture<WorkerAllocationResponse> getWorkerNodeFuture() {
         return workerAllocationFuture;
     }
