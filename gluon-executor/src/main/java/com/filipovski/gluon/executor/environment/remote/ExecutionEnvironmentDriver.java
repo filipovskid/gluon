@@ -83,8 +83,18 @@ public class ExecutionEnvironmentDriver
     }
 
     private void stop() {
-        this.server.shutdown();
-        logger.info("Environment driver stopped successfully!");
+        try {
+            this.server.shutdown();
+            this.runtimeEnvironment.stop();
+        } catch (Exception e) {
+            logger.warn("A problem has occurred while stopping the environment [{}] [{}]! Shutting down forcefully!",
+                    this.environmentId, e.toString());
+            this.server.shutdownNow();
+        } finally {
+            this.client.notifyEnvironmentStopped(this.environmentId);
+            this.client.shutdown();
+            logger.info("Environment [{}] driver stopped successfully!", this.environmentId);
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -173,6 +183,13 @@ public class ExecutionEnvironmentDriver
                     registrationDetails, e);
             stop();
         }
+    }
+
+    @Override
+    public void stop(EnvironmentStopMessage request, StreamObserver<EnvironmentStopStatus> responseObserver) {
+        stop();
+        responseObserver.onNext(EnvironmentStopStatus.newBuilder().build());
+        responseObserver.onCompleted();
     }
 
     public static class EnvironmentDriverArgs {

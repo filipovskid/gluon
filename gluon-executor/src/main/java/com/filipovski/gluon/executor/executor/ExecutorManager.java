@@ -24,4 +24,6 @@ public interface ExecutorManager {
      */
     Optional<Executor> obtainExecutor(String executorIdentifier, ExecutionEnvironment environment);
 
+    /** Stop all managed executors. */
+    void stop();
 }

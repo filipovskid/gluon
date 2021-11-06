@@ -14,12 +14,18 @@ message TaskExecutionPayload {
   TaskDescriptionData taskDescriptor = 2;
 }
 
-message RemoteExecutionResult {
+message RemoteExecutionResult { }
 
+message EnvironmentStopMessage { }
+
+message EnvironmentStopStatus {
+  bool success = 1;
 }
 
 service EnvironmentRuntimeDriverService {
 
-  rpc execute(TaskExecutionPayload) returns (RemoteExecutionResult) {}
+  rpc execute(TaskExecutionPayload) returns (RemoteExecutionResult) { }
+
+  rpc stop(EnvironmentStopMessage) returns (EnvironmentStopStatus) { }
 
 }
