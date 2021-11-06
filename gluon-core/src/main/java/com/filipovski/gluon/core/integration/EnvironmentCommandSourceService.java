@@ -1,10 +1,10 @@
 package com.filipovski.gluon.core.integration;
 
 import com.filipovski.gluon.common.integration.avro.EnvironmentStartCommandRecord;
-import com.filipovski.gluon.common.integration.avro.ExecutionTaskCreatedRecord;
+import com.filipovski.gluon.common.integration.avro.EnvironmentStopCommandRecord;
 import com.filipovski.gluon.core.config.KafkaConfig;
-import com.filipovski.gluon.core.job.events.CellExecutionJobCreatedEvent;
 import com.filipovski.gluon.core.notebook.events.NotebookStartingEvent;
+import com.filipovski.gluon.core.notebook.events.NotebookStoppingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -30,6 +30,16 @@ public class EnvironmentCommandSourceService {
         EnvironmentStartCommandRecord record = EnvironmentStartCommandRecord.newBuilder()
                 .setSessionId(event.getSessionId())
                 .setTimestamp(event.occuredOn().toEpochMilli())
+                .build();
+
+        kafkaTemplate.send(config.getEnvironmentCommandsTopic(), record.getSessionId(), record);
+    }
+
+    @EventListener
+    public void onNotebookStopping(@NonNull NotebookStoppingEvent event) {
+        EnvironmentStopCommandRecord record = EnvironmentStopCommandRecord.newBuilder()
+                .setSessionId(event.getSessionId())
+                .setTimestamp(event.getTimestamp().toEpochMilli())
                 .build();
 
         kafkaTemplate.send(config.getEnvironmentCommandsTopic(), record.getSessionId(), record);

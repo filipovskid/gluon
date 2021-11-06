@@ -1,6 +1,7 @@
 package com.filipovski.gluonserver.environment;
 
 import com.filipovski.gluonserver.environment.events.EnvironmentStartCommandEvent;
+import com.filipovski.gluonserver.environment.events.EnvironmentStopCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -29,6 +30,11 @@ public class EnvironmentCommandHandler {
     @EventListener
     public void onEnvironmentStartCommand(EnvironmentStartCommandEvent event) {
         environmentManager.createSessionEnvironment(event.getSessionId());
+    }
+
+    @EventListener
+    public void onEnvironmentStopCommand(EnvironmentStopCommandEvent event) {
+        environmentManager.stopSessionEnvironment(event.getSessionId());
     }
 
 }

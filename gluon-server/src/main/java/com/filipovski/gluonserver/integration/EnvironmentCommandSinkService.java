@@ -1,7 +1,9 @@
 package com.filipovski.gluonserver.integration;
 
 import com.filipovski.gluon.common.integration.avro.EnvironmentStartCommandRecord;
+import com.filipovski.gluon.common.integration.avro.EnvironmentStopCommandRecord;
 import com.filipovski.gluonserver.environment.events.EnvironmentStartCommandEvent;
+import com.filipovski.gluonserver.environment.events.EnvironmentStopCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,10 +21,10 @@ public class EnvironmentCommandSinkService {
 
     private final Logger logger = LoggerFactory.getLogger(ExecutionTaskEventSinkService.class);
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher publisher;
 
     public EnvironmentCommandSinkService(ApplicationEventPublisher publisher) {
-        this.eventPublisher = publisher;
+        this.publisher = publisher;
     }
 
     @KafkaHandler
@@ -32,6 +34,16 @@ public class EnvironmentCommandSinkService {
                 Instant.ofEpochMilli(record.getTimestamp())
         );
 
-        eventPublisher.publishEvent(event);
+        publisher.publishEvent(event);
+    }
+
+    @KafkaHandler
+    public void onEnvironmentStopCommand(EnvironmentStopCommandRecord record) {
+        EnvironmentStopCommandEvent event = EnvironmentStopCommandEvent.from(
+                record.getSessionId(),
+                Instant.ofEpochMilli(record.getTimestamp())
+        );
+
+        publisher.publishEvent(event);
     }
 }
