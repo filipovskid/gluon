@@ -2,6 +2,7 @@ package com.filipovski.gluon.core.notebook;
 
 import com.filipovski.common.domain.AbstractEntity;
 import com.filipovski.gluon.core.notebook.events.NotebookStartingEvent;
+import com.filipovski.gluon.core.notebook.events.NotebookStoppingEvent;
 import lombok.Getter;
 
 import javax.persistence.Entity;
@@ -33,6 +34,11 @@ public class Notebook extends AbstractEntity<NotebookId> {
     public void start(String sessionId) {
         transitionState(NotebookStatus.STARTING);
         registerEvent(NotebookStartingEvent.from(this, sessionId));
+    }
+
+    public void stop(String sessionId) {
+        transitionState(NotebookStatus.STOPPING);
+        registerEvent(NotebookStoppingEvent.from(this, sessionId));
     }
 
     public boolean isStarted() {

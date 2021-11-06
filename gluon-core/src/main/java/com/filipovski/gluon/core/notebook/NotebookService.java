@@ -63,6 +63,16 @@ public class NotebookService {
         return NotebookData.from(notebook, cells);
     }
 
+    public Notebook stopNotebook(UUID notebookId) throws Exception {
+        Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
+        String sessionId = sessionProvider.obtainSessionId(notebook);
+
+        notebook.stop(sessionId);
+        notebookRepository.save(notebook);
+
+        return notebook;
+    }
+
     public CellDetails addNotebookCell(UUID notebookId, AddNotebookCellRequest request) throws Exception {
         Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         NotebookCell notebookCell = NotebookCell.from(
