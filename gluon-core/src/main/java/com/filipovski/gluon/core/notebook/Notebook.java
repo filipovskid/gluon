@@ -8,11 +8,15 @@ import lombok.Getter;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Version;
 import java.util.Objects;
 
 @Getter
 @Entity(name = "notebooks")
 public class Notebook extends AbstractEntity<NotebookId> {
+
+    @Version
+    private Long version;
 
     private String name;
 

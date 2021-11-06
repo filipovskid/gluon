@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,6 +52,7 @@ public class NotebookService {
         return NotebookData.from(notebook, cells);
     }
 
+    @Transactional
     public NotebookData startNotebook(UUID notebookId) throws Exception {
         // TODO: Probably the logic needs to be in a domain service, but I will take a shortcut
         Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
@@ -63,6 +65,7 @@ public class NotebookService {
         return NotebookData.from(notebook, cells);
     }
 
+    @Transactional
     public Notebook stopNotebook(UUID notebookId) throws Exception {
         Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         String sessionId = sessionProvider.obtainSessionId(notebook);

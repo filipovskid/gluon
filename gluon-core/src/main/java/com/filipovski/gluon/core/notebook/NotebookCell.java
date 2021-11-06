@@ -35,7 +35,7 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
     @Convert(converter= NotebookCellOutputConverter.class)
     private NotebookCellOutput output;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Notebook notebook;
 
     protected NotebookCell() { }

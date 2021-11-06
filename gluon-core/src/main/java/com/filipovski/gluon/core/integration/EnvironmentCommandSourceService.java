@@ -11,6 +11,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 public class EnvironmentCommandSourceService {
@@ -25,7 +27,7 @@ public class EnvironmentCommandSourceService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNotebookStartup(@NonNull NotebookStartingEvent event) {
         EnvironmentStartCommandRecord record = EnvironmentStartCommandRecord.newBuilder()
                 .setSessionId(event.getSessionId())
@@ -35,7 +37,7 @@ public class EnvironmentCommandSourceService {
         kafkaTemplate.send(config.getEnvironmentCommandsTopic(), record.getSessionId(), record);
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNotebookStopping(@NonNull NotebookStoppingEvent event) {
         EnvironmentStopCommandRecord record = EnvironmentStopCommandRecord.newBuilder()
                 .setSessionId(event.getSessionId())
