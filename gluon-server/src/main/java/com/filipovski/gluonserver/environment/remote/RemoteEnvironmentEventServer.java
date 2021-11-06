@@ -2,6 +2,8 @@ package com.filipovski.gluonserver.environment.remote;
 
 import com.filipovski.gluon.executor.proto.*;
 import com.filipovski.gluonserver.environment.EnvironmentManager;
+import com.filipovski.gluonserver.environment.EnvironmentStatus;
+import com.filipovski.gluonserver.environment.events.EnvironmentStatusChangedEvent;
 import com.filipovski.gluonserver.task.events.ExecutionOutputArrivedEvent;
 import com.filipovski.gluonserver.task.events.TaskStateChangedEvent;
 import io.grpc.stub.StreamObserver;
@@ -56,6 +58,24 @@ public class RemoteEnvironmentEventServer extends EnvironmentEventServiceGrpc.En
         publisher.publishEvent(event);
 
         TaskStateUpdateStatus status = TaskStateUpdateStatus.newBuilder()
+                .setSuccess(true)
+                .build();
+        responseObserver.onNext(status);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void notifyEnvironmentStopped(EnvironmentStoppedEvent request,
+                                         StreamObserver<EnvironmentNotificationStatus> responseObserver) {
+        EnvironmentStatusChangedEvent event = EnvironmentStatusChangedEvent.from(
+                request.getSessionId(),
+                EnvironmentStatus.STOPPED,
+                "Environment has been stopped gracefully.",
+                Instant.now()
+        );
+        publisher.publishEvent(event);
+
+        EnvironmentNotificationStatus status = EnvironmentNotificationStatus.newBuilder()
                 .setSuccess(true)
                 .build();
         responseObserver.onNext(status);

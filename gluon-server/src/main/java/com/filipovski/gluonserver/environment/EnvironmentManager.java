@@ -99,6 +99,16 @@ public class EnvironmentManager {
         return environment == null ? Optional.empty() : Optional.of(environment);
     }
 
+    public void stopSessionEnvironment(String sessionId) {
+        pendingEnvironmentSessionRegistrations.remove(sessionId);
+        ExecutionEnvironment environment = sessionEnvironments.remove(sessionId);
+
+        if (environment == null)
+            return;
+
+        environment.stop();
+    }
+
     public void onExecutionEnvironmentRegistration(EnvironmentRegistrationRequest registrationRequest) {
         sessionEnvironments.computeIfAbsent(registrationRequest.getSessionId(), (sessionId) -> {
             pendingEnvironmentSessionRegistrations.remove(registrationRequest.getSessionId());

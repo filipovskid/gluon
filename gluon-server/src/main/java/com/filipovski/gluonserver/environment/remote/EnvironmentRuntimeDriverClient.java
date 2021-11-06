@@ -39,6 +39,10 @@ public class EnvironmentRuntimeDriverClient {
         this.asyncStub = EnvironmentRuntimeDriverServiceGrpc.newStub(this.channel);
     }
 
+    public void shutdown() {
+        this.channel.shutdown();
+    }
+
     public <R> R callFunctionBlocking(Function<EnvironmentRuntimeDriverServiceBlockingStub, R> function) {
         return function.apply(this.blockingStub);
     }
