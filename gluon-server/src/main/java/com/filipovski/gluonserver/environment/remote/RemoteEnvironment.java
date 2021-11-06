@@ -1,6 +1,7 @@
 package com.filipovski.gluonserver.environment.remote;
 
 import com.filipovski.gluon.executor.environment.ExecutionEnvironment;
+import com.filipovski.gluon.executor.proto.EnvironmentStopMessage;
 import com.filipovski.gluon.executor.proto.TaskDescriptionData;
 import com.filipovski.gluon.executor.proto.TaskExecutionPayload;
 import com.filipovski.gluon.executor.task.Task;
@@ -36,7 +37,9 @@ public class RemoteEnvironment implements ExecutionEnvironment {
 
     @Override
     public void stop() {
-
+        EnvironmentStopMessage message = EnvironmentStopMessage.newBuilder().build();
+        this.client.callFunctionBlocking(client -> client.stop(message));
+        this.client.shutdown();
     }
 
     private TaskExecutionPayload createTaskPayload(Task task) {

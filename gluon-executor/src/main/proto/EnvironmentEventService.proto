@@ -43,9 +43,19 @@ message ExecutionOutputHandlingStatus {
 
 }
 
+message EnvironmentStoppedEvent {
+  string sessionId = 1;
+}
+
+message EnvironmentNotificationStatus {
+  bool success = 1;
+}
+
 service EnvironmentEventService {
 
   rpc registerEnvironmentDriver(EnvironmentRegistrationDetails) returns (EnvironmentRegistrationStatus) { }
+
+  rpc notifyEnvironmentStopped(EnvironmentStoppedEvent) returns (EnvironmentNotificationStatus) { }
 
   rpc updateTaskState(TaskStateDetails) returns (TaskStateUpdateStatus) { }
 

@@ -2,6 +2,7 @@ package com.filipovski.gluon.core.notebook.dto;
 
 import com.filipovski.gluon.core.notebook.Notebook;
 import com.filipovski.gluon.core.notebook.NotebookCell;
+import com.filipovski.gluon.core.notebook.NotebookStatus;
 import lombok.Getter;
 
 import java.util.List;
@@ -12,14 +13,17 @@ public class NotebookData {
 
     private String id;
 
+    private NotebookStatus status;
+
     private String name;
 
     private String language;
 
     private List<CellDetails> cells;
 
-    public NotebookData(String id, String name, String language, List<CellDetails> cells) {
+    public NotebookData(String id, NotebookStatus status, String name, String language, List<CellDetails> cells) {
         this.id = id;
+        this.status = status;
         this.name = name;
         this.language = language;
         this.cells = cells;
@@ -32,6 +36,7 @@ public class NotebookData {
 
         return new NotebookData(
                 notebook.id().getId(),
+                notebook.getStatus(),
                 notebook.getName(),
                 notebook.getLanguage(),
                 cells

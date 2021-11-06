@@ -30,6 +30,16 @@ public class NotebookController {
         return ResponseEntity.ok(notebookService.getNotebook(notebookId));
     }
 
+    @PostMapping("/{notebook-id}/start")
+    public ResponseEntity<NotebookData> startNotebook(@PathVariable("notebook-id") UUID notebookId) throws Exception {
+        return ResponseEntity.ok(notebookService.startNotebook(notebookId));
+    }
+
+    @PostMapping("/{notebook-id}/stop")
+    public ResponseEntity<Notebook> stopNotebook(@PathVariable("notebook-id") UUID notebookId) throws Exception {
+        return ResponseEntity.ok(notebookService.stopNotebook(notebookId));
+    }
+
     @PostMapping("/{notebook-id}/cell")
     public ResponseEntity<CellDetails> addNotebookCell(@PathVariable("notebook-id") UUID notebookId,
                                                        @RequestBody AddNotebookCellRequest request) throws Exception {
@@ -43,9 +53,9 @@ public class NotebookController {
         notebookService.removeNotebookCell(notebookId, notebookCellId);
     }
 
-    @GetMapping("/{notebook-id}/cell/{cell-id}/run")
-    public void runNotebookCell(@PathVariable("notebook-id") UUID notebookId,
+    @PostMapping("/{notebook-id}/cell/{cell-id}/run")
+    public ResponseEntity<CellDetails> runNotebookCell(@PathVariable("notebook-id") UUID notebookId,
                                 @PathVariable("cell-id") UUID notebookCellId) throws Exception {
-        notebookService.runNotebookCell(notebookId, notebookCellId);
+        return ResponseEntity.ok(notebookService.runNotebookCell(notebookId, notebookCellId));
     }
 }

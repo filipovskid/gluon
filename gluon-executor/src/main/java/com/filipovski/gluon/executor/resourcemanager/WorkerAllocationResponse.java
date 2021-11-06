@@ -44,4 +44,12 @@ public class WorkerAllocationResponse {
         SUCCESS,
         FAILURE
     }
+
+    @Override
+    public String toString() {
+        return "WorkerAllocationResponse{" +
+                "status=" + status +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

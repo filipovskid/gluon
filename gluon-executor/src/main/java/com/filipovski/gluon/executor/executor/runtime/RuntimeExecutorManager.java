@@ -50,4 +50,9 @@ public class RuntimeExecutorManager implements ExecutorManager {
 
         return Optional.ofNullable(executor);
     }
+
+    @Override
+    public void stop() {
+        environmentExecutors.values().forEach(Executor::stop);
+    }
 }

@@ -1,0 +1,10 @@
+{
+  "namespace": "com.filipovski.gluon.common.integration.avro",
+  "type": "record",
+  "name": "ExecutionOutputRecord",
+  "fields": [
+    { "name": "task_id", "type": "string" },
+    { "name": "data", "type": "string" },
+    { "name": "timestamp", "type": "long" }
+  ]
+}

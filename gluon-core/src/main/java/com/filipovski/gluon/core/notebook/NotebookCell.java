@@ -2,17 +2,18 @@ package com.filipovski.gluon.core.notebook;
 
 import com.filipovski.common.domain.AbstractEntity;
 import com.filipovski.gluon.core.notebook.events.CellExecutionStartedEvent;
+import com.filipovski.gluon.core.notebook.utils.NotebookCellOutputConverter;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
+import java.util.Collections;
 import java.util.Objects;
 
 // TODO: Track cell execution lifecycle.
 // TODO: Should have a service that knows the isolation level of a cell execution.
 //       This service should be able to create a sessionId which identifies the
 //       environment within which the code will be executed.
+// TODO: State transition event for frontend.
 
 @Getter
 @Entity(name = "notebook_cells")
@@ -27,7 +28,14 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
 
     private Double position;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    private NotebookCellStatus status;
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter= NotebookCellOutputConverter.class)
+    private NotebookCellOutput output;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Notebook notebook;
 
     protected NotebookCell() { }
@@ -43,12 +51,28 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
         this.language = language;
         this.code = code;
         this.position = position;
+        this.status = NotebookCellStatus.CREATED;
+        this.output = NotebookCellOutput.from(Collections.emptyList());
     }
 
-    public void run() {
-        // TODO: Track notebook cell's execution state. Ensure proper state transition.
+    public void run(String sessionId) {
+        if (!notebook.isStarted())
+            return;
+        
+        transitionState(NotebookCellStatus.PENDING);
+        this.output = NotebookCellOutput.from(Collections.emptyList());
+        registerEvent(CellExecutionStartedEvent.from(this, sessionId));
+    }
 
-        registerEvent(CellExecutionStartedEvent.from(this));
+    public boolean transitionState(NotebookCellStatus status) {
+        // TODO: Check whether all transitions are possible. Current setup does not prevent any transitions.
+        this.status = status;
+
+        return true;
+    }
+
+    public void appendOutput(String data) {
+        this.output.appendOutput(data);
     }
 
     public String getId() {

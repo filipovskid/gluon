@@ -19,6 +19,8 @@ public class CellExecutionStartedEvent implements DomainEvent {
 
     private final NotebookId notebookId;
 
+    private final String sessionId;
+
     private final String language;
 
     private final String code;
@@ -29,6 +31,7 @@ public class CellExecutionStartedEvent implements DomainEvent {
 
     private CellExecutionStartedEvent(NotebookCellId cellId,
                                       NotebookId notebookId,
+                                      String sessionId,
                                       String language,
                                       String code,
                                       Instant startTime) {
@@ -36,18 +39,20 @@ public class CellExecutionStartedEvent implements DomainEvent {
         this.notebookId = Objects.requireNonNull(notebookId, "notebookId must not be null");
         this.startTime = Objects.requireNonNull(startTime, "startTime must not be null");
 
-        if (Strings.isNullOrEmpty(language))
-            throw new IllegalArgumentException("language must not be empty");
+        assertStringNotEmpty(sessionId, "sessionId");
+        assertStringNotEmpty(language, "language");
 
+        this.sessionId = sessionId;
         this.language = language;
         this.code = Strings.isNullOrEmpty(code) ? "" : code;
         this.occuredOn = Instant.now();
     }
 
-    public static CellExecutionStartedEvent from(NotebookCell cell) {
+    public static CellExecutionStartedEvent from(NotebookCell cell, String sessionId) {
         return new CellExecutionStartedEvent(
                 cell.id(),
                 cell.getNotebook().id(),
+                sessionId,
                 cell.getLanguage(),
                 cell.getCode(),
                 Instant.now()
@@ -57,5 +62,10 @@ public class CellExecutionStartedEvent implements DomainEvent {
     @Override
     public Instant occuredOn() {
         return occuredOn;
+    }
+
+    private void assertStringNotEmpty(String o, String name) {
+        if (Strings.isNullOrEmpty(o))
+            throw new IllegalArgumentException(name + " must not be empty");
     }
 }

@@ -12,4 +12,7 @@ public class KafkaConfig {
 
     @Value("${kafka.execution.tasks.topic}")
     private String tasksTopic;
+
+    @Value("${kafka.environment-commands.topic}")
+    private String environmentCommandsTopic;
 }

@@ -1,3 +1,9 @@
+/**
+ * This task has been discontinued in favor of multi-type tasks.
+ * The change has been made to preserve task names within the schema and kafka
+ * topics.
+ */
+
 {
   "namespace": "com.filipovski.gluon.common.integration.avro",
   "type": "record",

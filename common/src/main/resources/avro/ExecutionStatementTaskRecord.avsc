@@ -1,0 +1,12 @@
+{
+  "namespace": "com.filipovski.gluon.common.integration.avro",
+  "type": "record",
+  "name": "ExecutionStatementTaskRecord",
+  "fields": [
+    { "name": "task_id", "type": "string" },
+    { "name": "session_id", "type": "string" },
+    { "name": "executor_id",  "type": "string" },
+    { "name": "code", "type": "string" },
+    { "name": "timestamp", "type": "long" }
+  ]
+}

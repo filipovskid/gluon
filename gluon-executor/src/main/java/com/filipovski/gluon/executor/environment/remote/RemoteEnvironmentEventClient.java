@@ -37,6 +37,14 @@ public class RemoteEnvironmentEventClient {
         asyncStub = EnvironmentEventServiceGrpc.newStub(channel);
     }
 
+    public void shutdown() {
+        this.channel.shutdown();
+    }
+
+    public void shutdownNow() {
+        this.channel.shutdownNow();
+    }
+
     public EnvironmentRegistrationStatus registerEnvironmentDriver(EnvironmentRegistrationDetails registrationDetails) {
         return this.blockingStub.registerEnvironmentDriver(registrationDetails);
     }
@@ -47,5 +55,12 @@ public class RemoteEnvironmentEventClient {
 
     public ExecutionOutputHandlingStatus sendExecutionOutput(ExecutionOutputEvent event) {
         return this.blockingStub.sendExecutionOutput(event);
+    }
+
+    public void notifyEnvironmentStopped(String sessionId) {
+        EnvironmentStoppedEvent event = EnvironmentStoppedEvent.newBuilder()
+                .setSessionId(sessionId)
+                .build();
+        this.blockingStub.notifyEnvironmentStopped(event);
     }
 }

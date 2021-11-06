@@ -12,7 +12,7 @@ public class CellExecutionJobCreatedEvent implements DomainEvent {
 
     private final String jobId;
 
-    private final String sessionid;
+    private final String sessionId;
 
     private final String language;
 
@@ -20,13 +20,14 @@ public class CellExecutionJobCreatedEvent implements DomainEvent {
 
     private final Instant startTime;
 
-    private final Instant occuredOn;
+    private final Instant timestamp;
 
     public CellExecutionJobCreatedEvent(String id,
                                         String sessionId,
                                         String language,
                                         String code,
-                                        Instant startTime) {
+                                        Instant startTime,
+                                        Instant timestamp) {
         this.startTime = Objects.requireNonNull(startTime, "startTime must not be null");
 
         if (Strings.isNullOrEmpty(id))
@@ -42,14 +43,14 @@ public class CellExecutionJobCreatedEvent implements DomainEvent {
             throw new IllegalArgumentException("code must not be empty");
 
         this.jobId = id;
-        this.sessionid = sessionId;
+        this.sessionId = sessionId;
         this.language = language;
         this.code = code;
-        this.occuredOn = Instant.now();
+        this.timestamp = Objects.requireNonNull(timestamp, "timestamp must not be null!");
     }
 
     @Override
     public Instant occuredOn() {
-        return occuredOn;
+        return timestamp;
     }
 }

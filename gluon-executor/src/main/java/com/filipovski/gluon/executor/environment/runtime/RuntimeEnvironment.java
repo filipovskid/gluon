@@ -38,7 +38,7 @@ public class RuntimeEnvironment extends AbstractEnvironment {
 
     @Override
     public void stop() {
-
+        executorManager.stop();
     }
 
     public RuntimeContext getRuntimeContext() {
