@@ -101,6 +101,8 @@ public class ExecutorLoader {
                                             ExecutorProvider provider,
                                             Config config) {
         String executorName = config.getString(ExecutorConfigOptions.EXECUTOR_NAME);
+        logger.info("Executor [{}] from plugin [{}] registered!", executorName, pluginDescriptor.getPluginId());
+
         return new ExecutorSpec(executorName, pluginDescriptor, provider, config);
     }
 
