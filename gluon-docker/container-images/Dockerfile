@@ -31,7 +31,17 @@ RUN /gluon/python3/bin/pip install \
     ipython==7.28.0 \
     numpy==1.21.3 \
     pandas==1.3.4 \
-    matplotlib==3.4.3
+    matplotlib==3.4.3 \
+    pyspark==3.2.0 \
+    findspark==1.4.2
+
+ARG spark_binaries=https://downloads.apache.org/spark/spark-3.2.0/spark-3.2.0-bin-hadoop2.7.tgz
+ARG spark_home=/gluon/spark/spark-3.2.0-bin-hadoop2.7
+RUN curl -o /gluon/spark/spark-bin.tgz --create-dirs $spark_binaries && \
+    tar xf /gluon/spark/spark-bin.tgz -C /gluon/spark
+
+ENV JAVA_HOME=/usr/lib/jvm/zulu15-ca-amd64
+ENV SPARK_HOME=$spark_home
 
 # Prepare environment driver jar
 COPY driver /gluon/driver
