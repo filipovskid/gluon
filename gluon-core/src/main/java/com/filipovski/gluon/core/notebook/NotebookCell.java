@@ -24,6 +24,7 @@ public class NotebookCell extends AbstractEntity<NotebookCellId> {
 
     private String language;
 
+    @Column(columnDefinition = "TEXT")
     private String code;
 
     private Double position;

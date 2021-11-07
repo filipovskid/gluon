@@ -80,7 +80,7 @@ public class NotebookService {
         Notebook notebook = findNotebook(NotebookId.from(notebookId.toString()));
         NotebookCell notebookCell = NotebookCell.from(
                 notebook,
-                notebook.getLanguage(),
+                request.getExecutor() == null ? notebook.getLanguage() : request.getExecutor(),
                 request.getCellInput(),
                 request.getPosition()
         );
