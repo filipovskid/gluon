@@ -8,8 +8,9 @@
         <module>gluon-core</module>
         <module>gluon-executor</module>
         <module>gluon-docker</module>
-        <module>gluon-python</module>
         <module>gluon-server</module>
+        <module>gluon-python</module>
+        <module>gluon-spark</module>
     </modules>
 
     <groupId>com.filipovski</groupId>
